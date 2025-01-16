@@ -2,7 +2,6 @@ import BaseTetrisController from "./BaseTetrisController";
 import {GAME_SIZE} from "../TetrisController";
 import Cell from "../entites/Cell";
 import TetrisFactory from "../helpers/TetrisFactory";
-import TetrsFactory from "../helpers/TetrisFactory";
 
 const utils = {
   getCellPos: (cellSize, axes) => {
@@ -90,7 +89,7 @@ export default class TetrisAreaController extends BaseTetrisController {
 
     const hideSquares = (() => {
       const arr = [];
-      const squares = TetrsFactory.getCollectionByType("square");
+      const squares = TetrisFactory.getCollectionByType("square");
 
       while (arr.length < hideSquaresCount) {
         const randomEl = squares[Math.floor(Math.random() * squares.length)];
