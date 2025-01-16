@@ -1,0 +1,47 @@
+/**
+ * В Edge если в @keyframes нет описания начального состояния (0%/from), то ломается steps()
+ */
+@function sequence-keyframes__percents($i, $p1, $p2) {
+  $list: ($p1);
+  //@if $p2 <= 100% {
+  //  $list: join($list, $p2 - 0.01%, comma);
+  //}
+  @if ($i == 0 and $p1 > 0%) {
+    $list: join(0%, $list, comma);
+  }
+
+  @return $list;
+}
+/**
+ * Баг в Edge+css минификатор. Минификатор сокращает 0% до 0, в edge при этом ломается steps()
+ */
+@function sequence-keyframes__percentageNonZero($val) {
+  $val: strip-unit($val);
+  @if ($val == 0) {
+    $val: $val + 0.00001;
+  }
+  @return percentage($val);
+}
+
+/**
+ * Генерация keyframes для анимации 
+ * $FRAMES_ORDER: (0,1,2,3,4,5,6,7,8,9,10,11,0,1,2,3,4,5,6,7,8,9,10,11,0);
+ * @include animation(ANIMATION_NAME frames2time(length($frames_static) + 25) steps(1) infinite) {
+ *   @include sequence-keyframes((w: $FRAME_WIDTH, h: $FRAME_HEIGHT), (w: $ATLAS_WIDTH, h: $ATLAS_HEIGHT), $FRAMES_ORDER, 25);
+ * }
+ */
+@mixin sequence-keyframes($frame, $sprite, $frames, $delayBefore: 0, $delayAfter: 0) {
+  $cols: floor(map-get($sprite, w) / map-get($frame, w));
+
+  $i: 0;
+  @each $f in $frames {
+    $p1: percentage(($i + $delayBefore) / (length($frames) + $delayBefore + $delayAfter - 1));
+    $p2: percentage(($i + 1 + $delayBefore) / (length($frames) + $delayBefore + $delayAfter - 1));
+    #{sequence-keyframes__percents($i, $p1, $p2)} {
+      background-position:
+        sequence-keyframes__percentageNonZero(($f % $cols) * map-get($frame, w) / (map-get($sprite, w) - map-get($frame, w)))
+        sequence-keyframes__percentageNonZero(floor($f / $cols) * map-get($frame, h) / (map-get($sprite, h) - map-get($frame, h)));
+    }
+    $i: $i + 1;
+  }
+}

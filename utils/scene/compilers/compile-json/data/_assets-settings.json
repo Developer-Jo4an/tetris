@@ -1,0 +1,7 @@
+{
+  "assetsUrl": "/assets",
+  "materialPrefix": "mat",
+  "texturePrefix": "tex",
+  "replaceMaterials": [
+  ]
+}

@@ -1,0 +1,17 @@
+.input {
+  @mixin mod($mod) {
+    @include modifier("input", $mod){
+      @content;
+    }
+  }
+
+  &__name{
+  }
+
+  &__block{
+  }
+
+  &__error {
+  }
+
+}

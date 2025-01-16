@@ -1,0 +1,40 @@
+image: node:16.13.0
+
+stages:
+  - build
+  #- deploy
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - .yarn
+
+build:
+  only:
+    - master
+    - dev
+  stage: build
+  script:
+    - yarn install --ignore-scripts
+    - yarn run build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - out
+
+deploy:
+  only:
+    - master
+    - dev
+  tags:
+    - frontend
+  image: node:alpine
+  stage: deploy
+  script:
+    - apk add --no-cache rsync
+    - export PROJECT_ID=$(node -p "require('./package.json').project_id")
+    - export PROJECT_YEAR=$(node -p "'20$PROJECT_ID'.substr(0,4)")
+    - echo $PROJECT_ID
+    - echo $PROJECT_YEAR
+    - rsync -rav out/ /mnt/diskstation/web/dev/$PROJECT_YEAR/$PROJECT_ID/

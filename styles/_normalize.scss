@@ -1,0 +1,61 @@
+@import "~normalize.css/normalize.css";
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  background: #ffffff;
+  @extend %DEFAULT;
+}
+
+body {
+  opacity: 1;
+  transition: opacity 0.2s;
+  min-height: 100vh;
+  &.preload {
+    opacity: 0;
+    overflow: hidden;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+
+
+a,
+button,
+input,
+textarea,
+[tabindex]{
+  color: inherit;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+
+}
+
+form {
+  margin-block-end: 0;
+}
+
+* {
+  transform-origin: 50% 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.clearfix {
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}

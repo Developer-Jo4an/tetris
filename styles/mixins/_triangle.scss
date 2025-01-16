@@ -1,0 +1,44 @@
+@function triangle-size__split($val){
+  @if type-of($val) == 'list' {
+    $val: append($val, nth($val,1) + nth($val, 2));
+    @return $val;
+  }
+  @return $val * 0.5, $val * 0.5, $val;
+}
+
+@mixin triangle-size($width, $height, $direction) {
+  $w: triangle-size__split($width);
+  $w1: nth($w, 1);
+  $w2: nth($w, 2);
+  $w: nth($w, 3);
+
+  $h: triangle-size__split($height);
+  $h1: nth($h, 1);
+  $h2: nth($h, 2);
+  $h: nth($h, 3);
+
+  $side: (
+    T: 0 $w2 $h $w1,
+    TR: 0 $w $h 0,
+    R: $h1 0 $h2 $w,
+    BR: 0 0 $h $w,
+    B: $h $w2 0 $w1,
+    BL: $h 0 0 $w,
+    L: $h1 $w $h2 0,
+    TL: $h $w 0 0
+  );
+
+  border-width: map-get($side, $direction);
+}
+@mixin triangle-color($color, $direction) {
+  $side: (T: 3, TR: 2, R: 4, BR: 3, B: 1, BL: 4, L: 2, TL: 1);
+  $colors: set-nth((transparent transparent transparent transparent), map-get($side, $direction), $color);
+  border-color: $colors;
+}
+@mixin triangle($width, $height, $color, $direction) {
+  border-style: solid;
+  width: 0;
+  height: 0;
+  @include triangle-size($width, $height, $direction);
+  @include triangle-color($color, $direction);
+}

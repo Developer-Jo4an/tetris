@@ -1,0 +1,46 @@
+.custom-menu {
+  // Константы
+  @mixin mod($mod) {
+    @include modifier("custom-menu", $mod){
+      @content;
+    }
+  }
+
+  @mixin item($mod) {
+    @include modifier("custom-menu__item", $mod){
+      @content;
+    }
+  }
+
+  &__item{
+    display: inline-block;
+    vertical-align: middle;
+    padding: 10px 0;
+    margin: 0 15px 0 0;
+    @include is-burger{
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    &:hover {
+      .custom-menu__item-link{
+        color: #fff;
+        border-bottom: 1px solid #fff;
+      }
+    }
+
+  }
+
+  &__item-link{
+    font-size: 15px;
+    color: #fff;
+    transition: color 0.3s;
+    white-space: nowrap;
+    @include is-burger{
+      font-size: 20px;
+    }
+  }
+
+
+
+}

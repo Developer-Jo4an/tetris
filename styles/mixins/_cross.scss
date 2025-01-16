@@ -1,0 +1,45 @@
+%CROSS {
+  position: relative;
+  @at-root %CROSS__PSEUDO {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    content: "";
+    display: block;
+    margin: auto;
+    width: 100%;
+    transform-origin: 50% 50%;
+  }
+
+  &::before {
+    @extend %CROSS__PSEUDO;
+    transform: rotate(45deg);
+  }
+  &::after {
+    @extend %CROSS__PSEUDO;
+    transform: rotate(-45deg);
+  }
+}
+@mixin cross_color($color) {
+  &::before,
+  &::after {
+    background: $color;
+  }
+}
+@mixin cross($size, $thin, $color) {
+  @extend %CROSS;
+  width: $size;
+  height: $size;
+
+  &::before,
+  &::after {
+    height: $thin;
+    background: $color;
+    border-radius: $thin;
+  }
+}
+
+

@@ -1,0 +1,27 @@
+{
+  "area": {
+    "margin": 0.05
+  },
+  "cell": {
+
+  },
+  "levels": {
+    "1": {
+      "grid": [
+        {
+          "cells": [true, true, true, true, true]
+        }, {
+          "cells": [true, true, true, true, true]
+        }, {
+          "cells": [true, true, true, true, true]
+        }, {
+          "cells": [true, true, true, true, true]
+        }, {
+          "cells": [true, true, true, true, true]
+        }, {
+          "cells": [true, true, true, true, true]
+        }
+      ]
+    }
+  }
+}

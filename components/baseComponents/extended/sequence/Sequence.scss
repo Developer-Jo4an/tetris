@@ -1,0 +1,9 @@
+.sequence {
+  @mixin mod($mod) {
+    @include modifier("sequence", $mod){
+      @content;
+    }
+  }
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,10 @@
+{
+  "name": "compile-json",
+  "version": "1.0.0",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "gulp": "^5.0.0",
+    "through2": "^4.0.2"
+  }
+}

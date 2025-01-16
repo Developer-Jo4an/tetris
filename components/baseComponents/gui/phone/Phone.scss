@@ -1,0 +1,7 @@
+.phone {
+  @mixin mod($mod) {
+    @include modifier("phone", $mod){
+      @content;
+    }
+  }
+}

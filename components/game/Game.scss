@@ -1,0 +1,7 @@
+.game {
+  @mixin mod($mod) {
+    @include modifier("game", $mod){
+      @content;
+    }
+  }
+}

@@ -1,0 +1,157 @@
+body._preloader {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  //overflow-y: scroll;
+}
+
+.preloader {
+  // Константы
+  @mixin mod($mod) {
+    @include modifier("preloader", $mod) {
+      @content;
+    }
+  }
+
+  position: absolute;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+
+  display: flex;
+  opacity: 1;
+  transition: opacity 0.5s;
+  overflow: hidden;
+  background-color: $WHITE;
+  // transition: opacity 0.5s 0.5s;
+  // opacity: 0;
+  // pointer-events: none;
+
+  &_hide {
+  }
+
+  @include mod("show") {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  // &_first {
+  //   background: $WHITE;
+  // }
+
+  &__progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transform-origin: 0 0;
+    width: 100%;
+    height: 4vh;
+    background-color: red;
+    transform: scaleX(0);
+  }
+
+
+  // &_visible {
+  //   display: flex;
+  // }
+
+  &__block {
+    position: relative;
+    width: vh(90px);
+    height: vh(90px);
+
+    // opacity: 0;
+    // transition: opacity 0.5s;
+    // transform: rotateZ(45deg);
+
+    // @include mod("loading") {
+    //   opacity: 1;
+    // }
+
+    // @include mod("hide") {
+    //   opacity: 0;
+    // }
+
+    @include MOBILE {
+      width: vwm(55px);
+      height: vwm(55px);
+    }
+  }
+
+  &__item {
+    will-change: transform;
+    position: relative;
+    //transform: rotateZ(45deg);
+    width: 50%;
+    height: 50%;
+    float: left;
+    transform: scale(1);
+
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      animation: cube-loader 2.76s infinite linear both;
+      transform-origin: 100% 100%;
+    }
+
+    &_1 {
+      &:before {
+
+        background-color: #FCAF17;
+      }
+    }
+
+    &_2 {
+      transform: scale(1) rotateZ(90deg);
+
+      &:before {
+        background-color: #FCAF17;
+        animation-delay: 0.35s;
+      }
+
+    }
+
+    &_4 {
+      transform: scale(1) rotateZ(180deg);
+
+      &:before {
+        background-color: #FCAF17;
+        animation-delay: 0.69s;
+      }
+    }
+
+    &_3 {
+      transform: scale(1) rotateZ(270deg);
+
+      &:before {
+        background-color: #FCAF17;
+        animation-delay: 1.04s;
+      }
+    }
+
+    @include MOBILE {
+      width: vwm(25.5px);
+      height: vwm(25.5px);
+    }
+  }
+
+  @include mod(hide) {
+    // opacity: 0;
+  }
+
+  @include mod(hidden) {
+    pointer-events: none;
+  }
+}

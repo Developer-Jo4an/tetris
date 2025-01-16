@@ -1,0 +1,338 @@
+.custom-modal {
+  @mixin modifier($class, $mod) {
+  $modTmp: unquote("");
+  @if type-of($mod) == list {
+    @each $m in $mod {
+      $modTmp: $modTmp + unquote(".#{$class}_#{$m}");
+    }
+  } @else {
+    $modTmp: unquote(".#{$class}_#{$mod}");
+  }
+
+  //@debug nth(nth(&, 1), 1);
+  $first-class: split-pseudo-class(nth(nth(&, 1), 1));
+  @if length($first-class) > 1 {
+    @for $i from 2 through length($first-class) {
+      $modTmp: $modTmp + unquote("::") + nth($first-class, $i);
+    }
+  }
+
+  @if (nth($first-class, 1) != unquote(".#{$class}")) {
+    $modTmp: $modTmp + unquote(" &");
+  }
+
+  @at-root #{$modTmp} {
+    @content;
+  }
+}
+  // Константы
+  @mixin mod($mod) {
+    @include modifier("custom-modal", $mod){
+      @content;
+    }
+  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: $z-modal;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  outline: 0;
+
+  &__bg{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(#000, .8);
+
+    .custom-modal-enter &{
+      opacity: 0;
+    }
+    .custom-modal-enter-active &{
+      opacity: 1;
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit &{
+      opacity: 1;
+    }
+    .custom-modal-exit-active &{
+      opacity: 0;
+      transition: opacity 300ms, transform 300ms;
+    }
+  }
+
+  &__container{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+
+  &__block{
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: auto;
+    margin: .5rem auto;
+    pointer-events: none;
+    transform-style: preserve-3d;
+
+    @media screen and (min-width: 576px){
+      max-width: 100%;
+      min-height: 100%;
+      //margin: 1.75rem auto;
+      //min-height: calc(100% - 1rem);
+    }
+
+    @media screen and (min-width: 992px){
+      //min-height: calc(100% - 3.5rem);
+    }
+
+    @include mod("bottom"){
+      justify-content: flex-end;
+      //min-height: calc(100% - 0.5rem);
+      margin-bottom: 0;
+
+      //@media screen and (min-width: 576px){
+      //  min-height: calc(100% - 1.75rem);
+      //}
+    }
+
+    @include mod("top"){
+      justify-content: flex-start;
+      //min-height: calc(100% - 0.5rem);
+      margin-top: 0;
+
+      //@media screen and (min-width: 576px){
+      //  min-height: calc(100% - 1.75rem);
+      //}
+    }
+
+    @include mod("left"){
+      align-items: flex-start;
+      //margin-left: 0.5em;
+      margin-right: auto;
+
+      //@media screen and (min-width: 576px){
+      //  margin-left: 1.75rem;
+      //}
+    }
+
+    @include mod("right"){
+      align-items: flex-end;
+      margin-left: auto;
+      //margin-right: 0.5em;
+
+      //@media screen and (min-width: 576px){
+      //  margin-right: 1.75rem;
+      //}
+    }
+
+    @include mod("fullpage"){
+      flex-direction: column;
+      justify-content: flex-start;
+      max-width: 100%;
+      max-height: 100%;
+      height: 100%;
+      margin: 0;
+
+      @media screen and (min-width: 576px){
+        max-width: 100%;
+        margin: 0;
+      }
+
+      @media screen and (min-width: 992px){
+        max-width: 100%;
+      }
+    }
+
+    ////fade
+    .custom-modal-enter.fade &{
+      opacity: 0;
+    }
+    .custom-modal-enter-active.fade &{
+      opacity: 1;
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.fade &{
+      opacity: 1;
+    }
+    .custom-modal-exit-active.fade &{
+      opacity: 0;
+      transition: opacity 300ms, transform 300ms;
+    }
+    ////scale
+    .custom-modal-enter.scale &{
+      transform: scale(0.7);
+    }
+    .custom-modal-enter-active.scale &{
+      transform: translateX(0);
+        ransition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.scale &{
+      transform: scale(1);
+    }
+    .custom-modal-exit-active.scale &{
+      transform: scale(0.7);
+      transition: opacity 300ms, transform 300ms;
+    }
+    ////slide-right
+    .custom-modal-enter.slide-right &{
+      transform: translateX(20%);
+    }
+    .custom-modal-enter-active.slide-right &{
+      transform: translateX(0);
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.slide-right &{
+      transform: translateX(0%);
+    }
+    .custom-modal-exit-active.slide-right &{
+      transform: translateX(20%);
+      transition: opacity 300ms, transform 300ms;
+    }
+    ////slide-in
+    .custom-modal-enter.slide-in &{
+      transform: translateY(20%);
+    }
+    .custom-modal-enter-active.slide-in &{
+      transform: translateY(0);
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.slide-in &{
+      transform: translateY(0%);
+    }
+    .custom-modal-exit-active.slide-in &{
+      transform: translateY(20%);
+      transition: opacity 300ms, transform 300ms;
+    }
+    ////fall
+    .custom-modal-enter.fall &{
+      transform: translateZ(600px) rotateX(20deg);
+    }
+    .custom-modal-enter-active.fall &{
+      transform: translateZ(0px) rotateX(0deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.fall &{
+      transform: translateZ(0px) rotateX(0deg);
+    }
+    .custom-modal-exit-active.fall &{
+      transform: translateZ(600px) rotateX(20deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+    ////side-fall
+    .custom-modal-enter.side-fall &{
+      transform: translate(30%) translateZ(600px) rotate(10deg);
+    }
+    .custom-modal-enter-active.side-fall &{
+      transform: translate(0%) translateZ(0px) rotateX(0deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.side-fall &{
+      transform: translate(0%) translateZ(0px) rotateX(0deg);
+    }
+    .custom-modal-exit-active.side-fall &{
+      transform: translate(30%) translateZ(600px) rotate(10deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+    ////flip-horiz
+    .custom-modal-enter.flip-horiz &{
+      transform: rotateY(-70deg);
+    }
+    .custom-modal-enter-active.flip-horiz &{
+      transform: rotateY(0deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.flip-horiz &{
+      transform: rotateY(0deg);
+    }
+    .custom-modal-exit-active.flip-horiz &{
+      transform: rotateY(-70deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+    ////flip-vert
+    .custom-modal-enter.flip-vert &{
+      transform: rotateX(-70deg);
+    }
+    .custom-modal-enter-active.flip-vert &{
+      transform: rotateX(0deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.flip-vert &{
+      transform: rotateX(0deg);
+    }
+    .custom-modal-exit-active.flip-vert &{
+      transform: rotateX(-70deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+    ////super-scale
+    .custom-modal-enter.super-scale &{
+      transform: scale(2);
+    }
+    .custom-modal-enter-active.super-scale &{
+      transform: scale(1);
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.super-scale &{
+      transform: scale(1);
+    }
+    .custom-modal-exit-active.super-scale &{
+      transform: scale(2);
+      transition: opacity 300ms, transform 300ms;
+    }
+    /////rotate-left
+    .custom-modal-enter.rotate-left &{
+      transform: translateZ(100px) translateX(-30%) rotateY(90deg);
+    }
+    .custom-modal-enter-active.rotate-left &{
+      transform: translateZ(0px) translateX(0%) rotateY(0deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+    .custom-modal-exit.rotate-left &{
+      transform: translateZ(0px) translateX(0%) rotateY(0deg);
+    }
+    .custom-modal-exit-active.rotate-left &{
+      transform: translateZ(100px) translateX(-30%) rotateY(90deg);
+      transition: opacity 300ms, transform 300ms;
+    }
+  }
+
+  &__content{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    margin: auto;
+    pointer-events: auto;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: .3rem;
+    outline: 0;
+
+    @include mod("fullpage"){
+      height: 100%;
+      width: 100%;
+      overflow: auto;
+    }
+  }
+}
+.custom-modal.fall,
+.custom-modal.rotate-left,
+.custom-modal.flip-horiz,
+.custom-modal.flip-vert,
+.custom-modal.side-fall{
+  perspective: 1300px;
+}
+.custom-modal.fade:not(.show) {
+  opacity: 1;
+}

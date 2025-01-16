@@ -1,0 +1,179 @@
+@import "mixins/cross";
+@import "mixins/triangle";
+@import "mixins/sequence-keyframes";
+
+@mixin modifier($class, $mod) {
+  $modTmp: unquote("");
+  @if type-of($mod) == list {
+    @each $m in $mod {
+      $modTmp: $modTmp + unquote(".#{$class}_#{$m}");
+    }
+  } @else {
+    $modTmp: unquote(".#{$class}_#{$mod}");
+  }
+
+  //@debug nth(nth(&, 1), 1);
+  $first-class: split-pseudo-class(nth(nth(&, 1), 1));
+  @if length($first-class) > 1 {
+    @for $i from 2 through length($first-class) {
+      $modTmp: $modTmp + unquote("::") + nth($first-class, $i);
+    }
+  }
+
+  @if (nth($first-class, 1) != unquote(".#{$class}")) {
+    $modTmp: $modTmp + unquote(" &");
+  }
+
+  @at-root #{$modTmp} {
+    @content;
+  }
+}
+
+@mixin hover($selector: false){
+  @if $selector {
+
+    @include DESKTOP(){
+      #{$selector}:hover & {
+        @content
+      }
+    }
+    @include NOT-DESKTOP(){
+      #{$selector}:active & {
+        @content
+      }
+    }
+  }
+  @else {
+    @include DESKTOP(){
+      &:hover {
+        @content
+      }
+    }
+    @include NOT-DESKTOP(){
+      &:active {
+        @content
+      }
+    }
+  }
+}
+
+
+@mixin shake-animation($name, $center, $amplitude, $count, $duration, $delay: 0s){
+  $shakePart: $duration / ($delay + $duration);
+
+  $stepPart: percentage($shakePart / $count / 4);
+  @keyframes #{$name}{
+    0% { transform: scale($center); }
+    @for $i from 0 to $count {
+      #{($i * 4 + 1) * $stepPart} { transform: scale($center - $amplitude); }
+      #{($i * 4 + 3) * $stepPart} { transform: scale($center + $amplitude); }
+    }
+    100% { transform: scale($center); }
+  }
+
+  @if & {
+    animation: $name $delay + $duration linear 0s infinite both;
+  }
+}
+
+@mixin is-burger {
+  @include NOT-DESKTOP() {
+    @content;
+  }
+}
+
+@mixin menu-visible {
+  #menu-burger:checked ~ * & {
+    @content;
+  }
+}
+
+
+@mixin option($n, $v, $vm: $v, $vt: $vm) {
+  @include DESKTOP{
+    #{$n}: vh($v);
+  }
+  @include TABLET-L{
+    #{$n}: vw($v);
+  }
+  @include MOBILE{
+    #{$n}: vwm($vm);
+  }
+  @include TABLET{
+    #{$n}: vwt($vt);
+  }
+}
+
+@mixin option-mob($n, $vm, $vt: $vm){
+  @include MOBILE{
+    #{$n}:vwm($vm);
+  }
+  @include TABLET{
+    #{$n}:vwt($vt);
+  }
+}
+
+@mixin option-desk($n, $v) {
+  @include DESKTOP{
+    #{$n}: vh($v);
+  }
+  @include TABLET-L{
+    #{$n}: vw($v);
+  }
+}
+
+@mixin option-r($n, $v, $vm:false){
+  #{$n}: r-vw($v);
+}
+
+@mixin option-q($n, $v, $vm:$v, $debug: false){
+  #{$n}: $v;
+  @include MOBILE{
+    #{$n}: vwm($vm);
+  }
+}
+
+//
+//@mixin pixel-bg($bg:$PURPLE-D, $shadow:$PURPLE){
+//  position: absolute;
+//  top: 0;
+//  left: 0;
+//  width: 100%;
+//  height: 100%;
+//  border: 1em solid rgba($WHITE,0);
+//  box-sizing: border-box;
+//
+//  &:before,
+//  &:after{
+//    position: absolute;
+//    content: "";
+//    clear: both;
+//    display: block;
+//    width: auto;
+//    height: auto;
+//    background: $bg;
+//    box-shadow: 0 1em 0 0 $shadow;
+//    box-sizing: border-box;
+//  }
+//
+//  &:before{
+//    top: 0;
+//    left: -1em;
+//    right: -1em;
+//    bottom: 1em;
+//  }
+//  &:after{
+//    top: -1em;
+//    left: 0;
+//    right: 0;
+//    bottom: 0;
+//  }
+//}
+
+@mixin m-animation($mod,$mods...){
+  @for $i from 0 to length($mods) {
+    #{nth($mods, $i + 1)}-#{$mod} &{
+      @content;
+    }
+  }
+}

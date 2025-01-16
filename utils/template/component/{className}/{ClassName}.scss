@@ -1,0 +1,7 @@
+.<%- class_name %> {
+  @mixin mod($mod) {
+    @include modifier("<%-class_name%>", $mod){
+      @content;
+    }
+  }
+}

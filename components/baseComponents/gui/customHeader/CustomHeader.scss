@@ -1,0 +1,105 @@
+@mixin is-burger {
+  @include NOT-DESKTOP() {
+    @content;
+  }
+}
+
+#menu-burger {
+  display: none;
+}
+.custom-header {
+  @mixin mod($mod) {
+    @include modifier("custom-header", $mod){
+      @content;
+    }
+  }
+
+  padding: 20px;
+  background: #111;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+  &__block{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__logo {
+    position: relative;
+    width: 88px;
+    height: 89px;
+    background: url("/images/header/logo_pep.svg") no-repeat center {
+      size: contain;
+    };
+  }
+
+  &__burger {
+    $h: 4px;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 40px;
+    height: 30px;
+    padding: 20px;
+    transition: height 0.3s, transform 0.3s, opacity 0.3s;
+    cursor: pointer;
+
+    @include is-burger{
+      display: flex;
+    }
+
+    @include menu-visible{
+      p{
+        &:nth-child(1){
+          transform: rotate(45deg) translateY(-2px);
+        }
+        &:nth-child(2){
+          opacity: 0;
+        }
+        &:nth-child(3){
+          transform: rotate(-45deg) translateY(2px);
+        }
+      }
+    }
+
+    p{
+      width: 100%;
+      height: $h;
+      margin: 0;
+      background-color: $WHITE;
+      transition: transform 0.3s, opacity 0.3s;
+      transform-origin: center left;
+    }
+  }
+
+  &__wrapper {
+    display: inline-block;
+    vertical-align: middle;
+    box-sizing: border-box;
+
+    @include is-burger{
+      position: absolute;
+      top: 129px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 129px);
+      padding: 20px;
+      background-color: #000;
+      transform: translateX(101%);
+      transition: transform 0.3s;
+      cursor: pointer;
+    }
+
+    @include menu-visible{
+      @include is-burger{
+        transform: translateX(0%);
+      }
+    }
+  }
+
+  &__content {
+  }
+
+}

@@ -1,0 +1,11 @@
+{
+  "compileTo": "assets/tetris-settings.json",
+  "root": {
+    "@@controls": "_controls.json",
+    "@@assetsSettings": "_assets-settings.json",
+    "@@createBefore": "_create-before.json",
+    "@@preload": "_preload.json",
+    "@@sceneOverrides": "_scene-overrides.json",
+    "@@mainSceneSettings": "_main-scene-settings.json"
+  }
+}

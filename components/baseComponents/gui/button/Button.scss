@@ -1,0 +1,13 @@
+.button {
+  cursor: pointer;
+
+  position: relative;
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 20px;
+  min-width: 200px;
+  height: 60px;
+}

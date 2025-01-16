@@ -1,0 +1,20 @@
+/**
+ * Обычный текст
+ */
+
+%DEFAULT {
+  font-family: $BASE-FONT;
+  @include option(font-size, $PIC);
+
+  color: #000000;
+}
+
+
+
+%Question {
+  font-family: $FONT;
+  color: #000000;
+  @include option(font-size, 18px);
+  line-height: 1.2;
+  text-transform: uppercase;
+}

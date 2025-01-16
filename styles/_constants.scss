@@ -1,0 +1,68 @@
+/**
+ * breakpoints
+ */
+$MOBILE: 320px;
+$TABLET: 768px;
+$TABLET-L: 1024px;
+$DESKTOP: 1280px;
+
+/**
+ * font-family
+ */
+$BASE-FONT: 'Thintel', Helvetica, sans-serif;
+$FONT: 'Roboto', Helvetica, sans-serif;
+
+/**
+ * color
+ */
+$BLUE-L: #2595bf;
+$BLUE: #5b71de;
+$BLUE-D: #5664d2;
+//__________
+$PURPLE-L: #c5c8ff;
+$PURPLE: #7e82ca;
+$HERO-SHADOW: #585daa;
+$PURPLE-D: #373b88;
+
+$curious-blue: #2595bf;
+$iris: #5664d2;
+$ocean-blue: #473cb1;
+
+$PINK: #c54478;
+$DARK-BASE: #1a0a14;
+$WHITE: #ffffff;
+
+/**
+ * z-layer
+ */
+$z-modal: 1000;
+$z-preloader: 500;
+$z-close-btn-modal: 1;
+
+/**
+ * font-weight
+ */
+$FW-NORMAL: 400;
+$FW-BOLD: 700;
+$FW-THIN: 100;
+$FW-EXTRA_LIGHT: 200;
+$FW-ULTRA_LIGHT: 200;
+$FW-LIGHT: 300;
+$FW-MEDIUM: 500;
+$FW-SEMI_BOLD: 600;
+$FW-DEMI_BOLD: 600;
+$FW-EXTRA_BOLD: 800;
+$FW-ULTRA_BOLD: 800;
+$FW-BLACK: 900;
+$FW-HEAVY: 900;
+
+/**
+ * other
+ */
+$DESIGN-W-R: 2200px;
+$DESIGN-W: 1920px;
+$DESIGN-H: 1080px;
+$DESIGN-W-M: 414px;
+$DESIGN-H-M: 736px;
+$PIC: 16px;
+$CELL-W: 194px;
