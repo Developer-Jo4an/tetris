@@ -1,8 +1,8 @@
 import Data from "./Data";
-import PixiWrapper from "../../utils/scene/wrappers/pixi/PixiWrapper";
 import TetrisController from "./TetrisController";
+import {TetrisPixiWrapper} from "../../controllers/tetris/TetrisPixiWrapper";
 
-export default class TetrisWrapper extends PixiWrapper {
+export default class TetrisWrapper extends TetrisPixiWrapper {
   storage = new Data();
 
   static get instance() {

@@ -3,23 +3,81 @@
     "margin": 0.05
   },
   "cell": {
-
+  },
+  "square": {
+    "colors": [
+      "0xFF0000",
+      "0xFF7F00",
+      "0xFFFF00",
+      "0x00FF00",
+      "0x0000FF",
+      "0x4B0082",
+      "0x8B00FF"
+    ]
   },
   "levels": {
     "1": {
+      "startHidePercent": 0.4,
       "grid": [
         {
-          "cells": [true, true, true, true, true]
-        }, {
-          "cells": [true, true, true, true, true]
-        }, {
-          "cells": [true, true, true, true, true]
-        }, {
-          "cells": [true, true, true, true, true]
-        }, {
-          "cells": [true, true, true, true, true]
-        }, {
-          "cells": [true, true, true, true, true]
+          "cells": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "cells": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "cells": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "cells": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "cells": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "cells": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
         }
       ]
     }

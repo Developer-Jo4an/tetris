@@ -17,7 +17,6 @@ export default class BaseTetrisController {
 
   stateChanged({data: {state}}) {
     this.state = state;
-    this[`${this.state}Select`]?.();
   }
 
   init() {

@@ -4,12 +4,10 @@ import AssetsManager from "../../../utils/scene/loader/plugins/AssetsManager";
 export default class Cell extends BaseEntity {
 
   constructor(data) {
-    super(data);
-
+    super(data, "cell");
     const {isEmpty, size} = data;
 
     this.isEmpty = isEmpty;
-
     this.size = size;
 
     this.init();
@@ -34,5 +32,10 @@ export default class Cell extends BaseEntity {
     const [x, y] = this.name.split(":")[1].split("-").map(Number);
 
     return {x, y};
+  }
+
+  destroy() {
+    super.destroy();
+    //todo: destroy cell
   }
 }

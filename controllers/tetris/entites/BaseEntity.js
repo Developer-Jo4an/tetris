@@ -1,13 +1,19 @@
+import TetrisFactory from "../helpers/TetrisFactory";
+
 export default class BaseEntity {
 
   _view;
 
   _id;
 
-  constructor(data) {
+  constructor(data, type) {
     this.name = data.name;
     this.storage = data.storage;
+    this.eventBus = data.eventBus;
+    this.type = type;
     this.id = data.id;
+
+    this.add();
   }
 
   get id() {
@@ -28,5 +34,14 @@ export default class BaseEntity {
 
   init() {
 
+  }
+
+  add() {
+    TetrisFactory.setItemByType(this.type, this);
+  }
+
+  destroy() {
+    if (this.type)
+      TetrisFactory.clearItemByEntity(this.type, this);
   }
 }

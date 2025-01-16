@@ -4,14 +4,15 @@ export default function useStateReducer(reducers = {}, ignoreNextStates = [], ne
   useEffect(() => {
     if (!wrapper) return;
     const eventData = {state, promise: null};
-    wrapper.eventBus.dispatchEvent({type: "apply-state", data: eventData})
+    wrapper.eventBus.dispatchEvent({type: "apply-state", data: eventData});
     const {promise: controllerPromise} = eventData;
     let ignorePromise = ignoreNextStates.indexOf(state) !== -1;
 
     console.log(state, controllerPromise);
 
+
     if (typeof reducers[state] === "function")
-      reducers[state](controllerPromise)
+      reducers[state](controllerPromise);
 
     if (!ignorePromise)
       controllerPromise.then(() => nextState(state));

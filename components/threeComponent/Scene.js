@@ -1,16 +1,18 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {useLoadController} from "../../utils/scene/react/hooks/useLoadController";
 import {basePixiImports} from "../../utils/scene/utils/import/import-pixi";
 import useStateReducer from "../../utils/scene/react/hooks/useStateReducer";
+import Loader from "../loader/Loader";
 
 const stateMachine = {
-  loadManifest: {availableStates: ["loading"], nextState: "loading", isDefault: true},
-  loading: {availableStates: ["initialization"], nextState: "initialization"},
-  initialization: {availableStates: ["showing"], nextState: "showing"},
-  showing: {availableStates: [], nestState: "showing"}
+  loadManifest: {availableStates: ["loading"], nextState: "loading", isDefault: true, isLoading: true},
+  loading: {availableStates: ["initialization"], nextState: "initialization", isLoading: true},
+  initialization: {availableStates: ["showing"], nextState: "showing", isLoading: true},
+  showing: {availableStates: ["playing"], nextState: "playing"},
+  playing: {availableStates: [], nextState: ""}
 };
 
-const ignoreNextState = ["showing"];
+const ignoreNextState = ["playing"];
 
 export default function Scene() {
   const [wrapper, setWrapper] = useState();
@@ -63,8 +65,11 @@ export default function Scene() {
     return () => listenerLogic("remove");
   }, [wrapper, state]);
 
+  const isLoading = useMemo(() => stateMachine[state].isLoading, [state]);
+
   return (
     <div className={"tetris"}>
+      <Loader isVisible={isLoading}/>
       <div className={"tetris__container"} ref={containerRef}/>
     </div>
   );

@@ -19,5 +19,12 @@
     "name": "cell-empty",
     "path": "assets/texture/",
     "fileName": "cell-empty.jpg"
+  },
+  {
+    "subtype": "pixijs",
+    "type": "texture",
+    "name": "square",
+    "path": "assets/texture/",
+    "fileName": "square.jpg"
   }
 ]

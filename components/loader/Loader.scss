@@ -1,0 +1,87 @@
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgba(#000000, 0.7);
+
+  opacity: 0;
+
+  &__spinner {
+    width: 16px;
+    height: 16px;
+    box-shadow: 0 30px, 0 -30px;
+    border-radius: 4px;
+    background: currentColor;
+    display: block;
+    margin: auto;
+    position: relative;
+    color: $PINK;
+    transform: translateY(-15px);
+    box-sizing: border-box;
+    animation: animloader 2s ease infinite;
+
+    &:after, &:before {
+      content: "";
+      box-sizing: border-box;
+      width: 16px;
+      height: 16px;
+      box-shadow: 0 30px, 0 -30px;
+      border-radius: 4px;
+      background: currentColor;
+      color: $PINK;
+      position: absolute;
+      left: 30px;
+      top: 0;
+      animation: animloader 2s 0.2s ease infinite;
+    }
+
+    &:before {
+      animation-delay: 0.4s;
+      left: 60px;
+    }
+  }
+
+  &-enter-active {
+    opacity: 1;
+    transition: opacity .5s ease-in-out;
+  }
+
+  &-enter-done {
+    opacity: 1;
+  }
+
+  &-exit {
+    opacity: 1;
+  }
+
+  &-exit-active {
+    opacity: 0;
+    transition: opacity .5s ease-in-out;
+  }
+
+  &-exit-done {
+    opacity: 0;
+  }
+}
+
+@keyframes animloader {
+  0% {
+    top: 0;
+    color: $PINK;
+  }
+  50% {
+    top: 30px;
+    color: $HIDDEN_PINK;
+  }
+  100% {
+    top: 0;
+    color: $PINK;
+  }
+}
