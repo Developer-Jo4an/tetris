@@ -124,7 +124,6 @@ export default class TetrisAreaController extends BaseTetrisController {
       ease: "ease.inOut",
       onComplete: () => {
         hideSquares.forEach(square => square.destroy());
-        console.log(TetrsFactory.getCollectionByType("square"));
       }
     });
 
