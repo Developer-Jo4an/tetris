@@ -1,6 +1,7 @@
 import PixiController from "../../utils/scene/containers/PixiController";
 import TetrisAreaController from "./controllers/TetrisAreaController";
 import TetrisSquaresController from "./controllers/TetrisSquaresController";
+import TetrisSpawnAreaController from "./controllers/TetrisSpawnAreaController";
 
 export const GAME_SIZE = {width: 700, height: 1100};
 
@@ -8,7 +9,8 @@ export default class TetrisController extends PixiController {
 
   static CONTROLLERS = [
     TetrisAreaController,
-    TetrisSquaresController
+    TetrisSquaresController,
+    TetrisSpawnAreaController
   ];
 
   controllers = [];

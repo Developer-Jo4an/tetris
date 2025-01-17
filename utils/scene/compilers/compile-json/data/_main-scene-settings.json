@@ -17,7 +17,7 @@
   },
   "levels": {
     "1": {
-      "startHidePercent": 0.4,
+      "startHidePercent": 0.45,
       "grid": [
         {
           "cells": [
