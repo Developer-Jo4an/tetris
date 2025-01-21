@@ -1,7 +1,7 @@
 import BaseTetrisController from "./BaseTetrisController";
 import {GAME_SIZE} from "../TetrisController";
 import Cell from "../entites/Cell";
-import TetrisFactory from "../helpers/TetrisFactory";
+import TetrisContainer from "../helpers/TetrisContainer";
 
 const utils = {
   getCellPos: (cellSize, axes) => {
@@ -65,7 +65,7 @@ export default class TetrisAreaController extends BaseTetrisController {
 
     gridContainer.position.x = (GAME_SIZE.width - gridContainer.width) / 2;
 
-    TetrisFactory.getCollectionByType("cell").forEach(cell => cell.view.scale.set(0));
+    TetrisContainer.getCollectionByType("cell").forEach(cell => cell.view.scale.set(0));
 
     this.stage.addChild(gridContainer);
   }
@@ -75,7 +75,7 @@ export default class TetrisAreaController extends BaseTetrisController {
 
     const {startHidePercent} = levels[this.level];
 
-    const cells = TetrisFactory.getCollectionByType("cell");
+    const cells = TetrisContainer.getCollectionByType("cell");
 
     const shuffledCells = utils.shuffle(cells);
 
@@ -89,7 +89,7 @@ export default class TetrisAreaController extends BaseTetrisController {
 
     const hideSquares = (() => {
       const arr = [];
-      const squares = TetrisFactory.getCollectionByType("square");
+      const squares = TetrisContainer.getCollectionByType("square");
 
       while (arr.length < hideSquaresCount) {
         const randomEl = squares[Math.floor(Math.random() * squares.length)];

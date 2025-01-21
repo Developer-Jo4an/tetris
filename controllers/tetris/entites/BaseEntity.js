@@ -1,4 +1,4 @@
-import TetrisFactory from "../helpers/TetrisFactory";
+import TetrisContainer from "../helpers/TetrisContainer";
 
 export default class BaseEntity {
 
@@ -37,11 +37,11 @@ export default class BaseEntity {
   }
 
   add() {
-    TetrisFactory.setItemByType(this.type, this);
+    TetrisContainer.setItemByType(this.type, this);
   }
 
   destroy() {
     if (this.type)
-      TetrisFactory.clearItemByEntity(this.type, this);
+      TetrisContainer.clearItemByEntity(this.type, this);
   }
 }

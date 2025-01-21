@@ -1,5 +1,5 @@
 import BaseTetrisController from "../../../controllers/tetris/controllers/BaseTetrisController";
-import TetrisFactory from "../../../controllers/tetris/helpers/TetrisFactory";
+import TetrisContainer from "../../../controllers/tetris/helpers/TetrisContainer";
 import Square from "../entites/Square";
 
 export default class TetrisSquaresController extends BaseTetrisController {
@@ -8,7 +8,7 @@ export default class TetrisSquaresController extends BaseTetrisController {
   }
 
   initializationSelect() {
-    const cells = TetrisFactory.getCollectionByType("cell");
+    const cells = TetrisContainer.getCollectionByType("cell");
 
     cells.forEach(cell => {
       const square = new Square({

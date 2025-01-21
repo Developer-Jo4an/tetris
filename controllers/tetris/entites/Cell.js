@@ -30,7 +30,6 @@ export default class Cell extends BaseEntity {
 
   getPosByName() {
     const [x, y] = this.name.split(":")[1].split("-").map(Number);
-
     return {x, y};
   }
 
