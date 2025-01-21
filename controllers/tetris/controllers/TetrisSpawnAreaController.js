@@ -1,8 +1,13 @@
 import BaseTetrisController from "./BaseTetrisController";
 import TetrisContainer from "../helpers/TetrisContainer";
-import {getRandomFromRange} from "../../../utils/data/random/getRandomFromRange";
+import {getRandomFromRange, getRandomIntFromRange} from "../../../utils/data/random/getRandomFromRange";
 
 const utils = {};
+
+const constants = {
+  directions: [[0, 1], [1, 0], [0, -1], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]],
+  ranges: [[4, 2], [8, 3], [12, 4]]
+};
 
 export default class TetrisSpawnAreaController extends BaseTetrisController {
   constructor(data) {
@@ -33,17 +38,95 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
     const squaresCount = Math.ceil(diff * randomPercent);
 
-    const createPossibleFigures = (() => {
-      const emptyCells = cells.reduce((acc, cell) => {
-        const squareKey = `square:${cell.id}-sprite`;
-        const squareInside = cell.view.getChildByName(squareKey);
-        if (!squareInside) acc.push(cell);
+    const shapesCount = (() => {
+      const copiedRanges = JSON.parse(JSON.stringify(constants.ranges)).reverse();
+
+      const necessaryRange = copiedRanges?.reduce((acc, [max, count]) => {
+        return squaresCount >= max && acc < count ? count : acc;
+      }, 1);
+
+      return getRandomIntFromRange(1, necessaryRange);
+    })();
+
+    const shapesFormCombinations = (() => {
+      const result = [];
+
+      const backtrack = (current, remaining, count) => {
+        if (count === shapesCount) {
+          !remaining && result.push([...current]);
+          return;
+        }
+        const start = current.length ? current[current.length - 1] : 1;
+        for (let i = start; i <= remaining; i++) {
+          current.push(i);
+          backtrack(current, remaining - i, count + 1);
+          current.pop();
+        }
+      };
+
+      backtrack([], squaresCount, 0);
+
+      return result;
+    })();
+
+    const getBooleanGrid = () => {
+
+    };
+
+    while (shapesFormCombinations.length) {
+      const randomIndex = getRandomIntFromRange(0, shapesFormCombinations.length - 1);
+      const value = shapesFormCombinations[randomIndex];
+      shapesFormCombinations.splice(randomIndex, 1);
+
+    }
+
+    const possibleFigures = (() => {
+      const formattedCells = cells.reduce((acc, cell) => {
+        const [string, column] = cell.id.split("-");
+        if (!acc[string]) acc[string] = [];
+        acc[string][column] = cell;
         return acc;
       }, []);
 
-      emptyCells.forEach(cell => {
+      const allShapes = [];
 
-      });
+      const isCellEmpty = cell => !Boolean(cell.view.getChildByName(`square:${cell.id}-sprite`));
+
+      const isValid = (x, y) => (
+        x >= 0 && y >= 0 &&
+        x < strings && y < columns &&
+        isCellEmpty(formattedCells[x][y])
+      );
+
+      const buildShape = (shape, visited, x, y) => {
+        if (shape.length > squaresCount) return;
+
+        allShapes.push([...shape]);
+
+        for (const [dx, dy] of constants.directions) {
+          const newX = x + dx;
+          const newY = y + dy;
+          if (isValid(newX, newY) && !visited.has(`${newX}:${newY}`)) {
+            visited.add(`${newX}:${newY}`);
+            shape.push(`${newX}:${newY}`);
+            buildShape(shape, visited, newX, newY);
+            shape.pop();
+            visited.delete(`${newX}:${newY}`);
+          }
+        }
+      };
+
+      for (let row = 0; row < strings; row++) {
+        for (let col = 0; col < columns; col++) {
+          if (isCellEmpty(formattedCells[row][col])) {
+            const visited = new Set();
+            visited.add(`${row}:${col}`);
+            buildShape([`${row}:${col}`], visited, row, col);
+          }
+        }
+      }
+
+      return allShapes;
     })();
   }
 
