@@ -14,6 +14,7 @@ export default class TetrisSquaresController extends BaseTetrisController {
       const square = new Square({
         id: cell.id,
         name: `square:${cell.id}`,
+        level: this.level,
         storage: this.storage,
         eventBus: this.eventBus,
         size: cell.size

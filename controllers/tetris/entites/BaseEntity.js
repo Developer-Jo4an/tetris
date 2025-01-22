@@ -11,6 +11,7 @@ export default class BaseEntity {
     this.storage = data.storage;
     this.eventBus = data.eventBus;
     this.type = type;
+    this.level = data.level;
     this.id = data.id;
 
     this.add();

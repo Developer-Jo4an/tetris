@@ -1,6 +1,7 @@
 import BaseTetrisController from "./BaseTetrisController";
 import TetrisContainer from "../helpers/TetrisContainer";
 import {getRandomFromRange, getRandomIntFromRange} from "../../../utils/data/random/getRandomFromRange";
+import SquaresGroupView from "../entites/SquaresGroupView";
 
 const utils = {};
 
@@ -10,6 +11,8 @@ const constants = {
 };
 
 export default class TetrisSpawnAreaController extends BaseTetrisController {
+  step = 0;
+
   constructor(data) {
     super(data);
   }
@@ -19,10 +22,10 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   }
 
   playingSelect() {
-    this.generateSquaresGroup();
+    this.generateSquaresGroupArray();
   }
 
-  generateSquaresGroup() {
+  generateSquaresGroupArray() {
     const {grid} = this.storage.mainSceneSettings.levels[this.level];
 
     const {strings, columns} = grid.reduce((acc, {cells}) => {
@@ -69,17 +72,6 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
       return result;
     })();
 
-    const getBooleanGrid = () => {
-
-    };
-
-    while (shapesFormCombinations.length) {
-      const randomIndex = getRandomIntFromRange(0, shapesFormCombinations.length - 1);
-      const value = shapesFormCombinations[randomIndex];
-      shapesFormCombinations.splice(randomIndex, 1);
-
-    }
-
     const possibleFigures = (() => {
       const formattedCells = cells.reduce((acc, cell) => {
         const [string, column] = cell.id.split("-");
@@ -125,9 +117,52 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
           }
         }
       }
+      const shiftCount = Math.floor(Math.random() * allShapes.length);
 
-      return allShapes;
+      return [...allShapes.slice(0, shiftCount), ...allShapes.slice(shiftCount)];
     })();
+
+    const necessaryShapes = [];
+
+    while (necessaryShapes.length !== shapesCount && shapesFormCombinations.length) {
+      necessaryShapes.length = 0;
+
+      const randomIndex = getRandomIntFromRange(0, shapesFormCombinations.length - 1);
+      const value = shapesFormCombinations.splice(randomIndex, 1)[0];
+
+      value.forEach(shapeLength => {
+        if (necessaryShapes.length === shapesCount) return;
+
+        const usedShapes = necessaryShapes.reduce((acc, figure) => [...acc, ...figure], []);
+
+        const necessaryFigure = possibleFigures.find(figure => {
+          return figure.length === shapeLength && !figure.some(subShape => usedShapes.includes(subShape));
+        });
+
+        if (necessaryFigure)
+          necessaryShapes.push(necessaryFigure);
+      });
+    }
+
+    const callbackKey = `generateSquaresGroup${necessaryShapes.length !== shapesCount ? "Array" : "View"}`;
+
+    this[callbackKey]?.(necessaryShapes);
+  }
+
+  generateSquaresGroupView(shapes) {
+    this.step++;
+
+    const shapeEls = shapes.map((shape, index) => {
+      const id = `${this.step}:${index}`;
+      return new SquaresGroupView({
+        id,
+        shape,
+        level: this.level,
+        storage: this.storage,
+        eventBus: this.eventBus,
+        name: `squaresGroupView:${id}`,
+      });
+    });
   }
 
   update(deltaTime) {

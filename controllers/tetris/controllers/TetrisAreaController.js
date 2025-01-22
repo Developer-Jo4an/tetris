@@ -2,6 +2,7 @@ import BaseTetrisController from "./BaseTetrisController";
 import {GAME_SIZE} from "../TetrisController";
 import Cell from "../entites/Cell";
 import TetrisContainer from "../helpers/TetrisContainer";
+import {globalUtils} from "../utils/globalUtils";
 
 const utils = {
   getCellPos: (cellSize, axes) => {
@@ -26,13 +27,7 @@ export default class TetrisAreaController extends BaseTetrisController {
 
     const {grid} = levels[this.level];
 
-    const marginFromEdge = GAME_SIZE.width * area.margin;
-
-    const cellSize = (() => {
-      const maxStringLength = grid.reduce((acc, {cells}) => Math.max(cells.length, acc), 0);
-      const maxValue = Math.max(maxStringLength, grid.length);
-      return (GAME_SIZE.width - 2 * marginFromEdge) / maxStringLength/*maxValue*/;
-    })();
+    const cellSize = globalUtils.getCellSize({gameSize: GAME_SIZE, grid, margin: area.margin});
 
     // cell: true | false | "empty": true - непустая, false - отсутствие, empty - пустая
 
@@ -46,7 +41,8 @@ export default class TetrisAreaController extends BaseTetrisController {
       const id = `${str}-${pos}`;
 
       const cellItem = new Cell({
-        id: `${str}-${pos}`,
+        id,
+        level: this.level,
         isEmpty: cell === "empty",
         size: cellSize,
         storage: this.storage,
