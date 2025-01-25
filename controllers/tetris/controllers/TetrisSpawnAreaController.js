@@ -2,6 +2,7 @@ import BaseTetrisController from "./BaseTetrisController";
 import TetrisContainer from "../helpers/TetrisContainer";
 import {getRandomFromRange, getRandomIntFromRange} from "../../../utils/data/random/getRandomFromRange";
 import SquaresGroupView from "../entites/SquaresGroupView";
+import {GAME_SIZE} from "../TetrisController";
 
 const utils = {};
 
@@ -18,7 +19,8 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   }
 
   init() {
-
+    this.squaresGroupArea = new PIXI.Container();
+    this.squaresGroupArea.name = "spawnArea";
   }
 
   playingSelect() {
@@ -150,9 +152,13 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   }
 
   generateSquaresGroupView(shapes) {
+    const {spawnArea: {distanceBetweenArea}, area: {margin}} = this.storage.mainSceneSettings;
+
     this.step++;
 
-    const shapeEls = shapes.map((shape, index) => {
+    const cells = TetrisContainer.getCollectionByType("cell");
+
+    const shapeGroups = shapes.map((shape, index) => {
       const id = `${this.step}:${index}`;
       return new SquaresGroupView({
         id,
@@ -163,6 +169,35 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
         name: `squaresGroupView:${id}`,
       });
     });
+
+    const tetrisAreaHeight = cells[0].view.parent.height;
+    const maxHeight = GAME_SIZE.height - tetrisAreaHeight - distanceBetweenArea;
+    const maxWidth = GAME_SIZE.width - margin * GAME_SIZE.width * 2;
+
+    const minScale = shapeGroups.reduce((acc, shapeGroup, _, arr) => {
+      const {view} = shapeGroup;
+      const scaleHeight = maxHeight / view.height;
+      const scaleWidth = ((maxWidth / arr.length) - ((arr.length - 1) * (margin * GAME_SIZE.width))) / view.width;
+      const scale = Math.min(scaleHeight, scaleWidth);
+      return Math.min(scale, acc);
+    }, Number.MAX_VALUE);
+
+    shapeGroups.forEach((shapeGroup, index, arr) => {
+      const {view} = shapeGroup;
+      view.scale.set(minScale);
+      const prevEls = arr.slice(0, index);
+      const x = prevEls.reduce((acc, {view}) => acc + view.width + margin * GAME_SIZE.width, view.width / 2);
+      const y = view.height / 2;
+      view.position.set(x, y);
+      this.squaresGroupArea.addChild(view);
+    });
+
+    shapeGroups.forEach(({view}) => view.position.y = this.squaresGroupArea.height / 2);
+
+    this.squaresGroupArea.pivot.set(this.squaresGroupArea.width / 2, 0);
+    this.squaresGroupArea.position.set(GAME_SIZE.width / 2, tetrisAreaHeight + distanceBetweenArea);
+
+    this.stage.addChild(this.squaresGroupArea);
   }
 
   update(deltaTime) {

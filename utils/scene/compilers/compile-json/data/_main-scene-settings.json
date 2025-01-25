@@ -2,6 +2,9 @@
   "area": {
     "margin": 0.05
   },
+  "spawnArea": {
+    "distanceBetweenArea": 20
+  },
   "cell": {
   },
   "square": {

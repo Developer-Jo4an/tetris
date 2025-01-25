@@ -7,10 +7,12 @@ export default class SquaresGroupView extends BaseEntity {
   constructor(data) {
     super(data, "squaresGroupView");
 
-    this.init(data.shape);
+    this.startShapes = data.shape;
+
+    this.init();
   }
 
-  init(shapes) {
+  init() {
     const {levels, area} = this.storage.mainSceneSettings;
 
     const {grid} = levels[this.level];
@@ -19,7 +21,7 @@ export default class SquaresGroupView extends BaseEntity {
     this.view.name = `${this.name}-container`;
 
     this.shapes = (() => {
-      const toNumberFormat = shapes.map(item => item.split(":").map(Number));
+      const toNumberFormat = this.startShapes.map(item => item.split(":").map(Number));
       const minX = Math.min(...toNumberFormat.map(pos => pos[0]));
       const minY = Math.min(...toNumberFormat.map(pos => pos[1]));
       return toNumberFormat.map(([x, y]) => [x - minX, y - minY]);
@@ -28,7 +30,9 @@ export default class SquaresGroupView extends BaseEntity {
     const cellSize = globalUtils.getCellSize({gameSize: GAME_SIZE, grid, margin: area.margin});
 
     this.shapes.forEach(shape => {
+      const [xMultiplier, yMultiplier] = shape;
       const id = "empty-empty";
+
       const square = new Square({
         id,
         level: this.level,
@@ -37,7 +41,12 @@ export default class SquaresGroupView extends BaseEntity {
         eventBus: this.eventBus,
         size: cellSize
       });
-      console.log(square);
+
+      square.view.position.set(yMultiplier * cellSize + cellSize / 2, xMultiplier * cellSize + cellSize / 2);
+
+      this.view.addChild(square.view);
     });
+
+    this.view.pivot.set(this.view.width / 2, this.view.height / 2);
   }
 }
