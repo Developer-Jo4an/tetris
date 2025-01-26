@@ -13,6 +13,7 @@ export default class TetrisSquaresController extends BaseTetrisController {
     cells.forEach(cell => {
       const square = new Square({
         id: cell.id,
+        stage: this.stage,
         name: `square:${cell.id}`,
         level: this.level,
         storage: this.storage,

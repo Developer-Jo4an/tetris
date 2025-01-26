@@ -164,6 +164,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
         id,
         shape,
         level: this.level,
+        stage: this.stage,
         storage: this.storage,
         eventBus: this.eventBus,
         name: `squaresGroupView:${id}`,
@@ -184,12 +185,13 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
     shapeGroups.forEach((shapeGroup, index, arr) => {
       const {view} = shapeGroup;
-      view.scale.set(minScale);
+      shapeGroup.setSelectionScale(minScale);
       const prevEls = arr.slice(0, index);
       const x = prevEls.reduce((acc, {view}) => acc + view.width + margin * GAME_SIZE.width, view.width / 2);
       const y = view.height / 2;
       view.position.set(x, y);
       this.squaresGroupArea.addChild(view);
+      view.alpha = 0;
     });
 
     shapeGroups.forEach(({view}) => view.position.y = this.squaresGroupArea.height / 2);
@@ -198,6 +200,17 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
     this.squaresGroupArea.position.set(GAME_SIZE.width / 2, tetrisAreaHeight + distanceBetweenArea);
 
     this.stage.addChild(this.squaresGroupArea);
+
+    const shapeViews = shapeGroups.map(({view}) => view);
+
+    gsap.to(shapeViews, {
+      alpha: 1,
+      duration: 0.3,
+      ease: "sine.out",
+      onComplete: () => {
+        shapeGroups.forEach(shapeGroup => shapeGroup.setInteractive(true));
+      }
+    });
   }
 
   update(deltaTime) {

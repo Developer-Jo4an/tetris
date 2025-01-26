@@ -38,6 +38,7 @@ export default class SquaresGroupView extends BaseEntity {
         level: this.level,
         name: `square:${id}`,
         storage: this.storage,
+        stage: this.stage,
         eventBus: this.eventBus,
         size: cellSize
       });
@@ -48,5 +49,86 @@ export default class SquaresGroupView extends BaseEntity {
     });
 
     this.view.pivot.set(this.view.width / 2, this.view.height / 2);
+
+    this.hitArea = new PIXI.Graphics();
+    this.hitArea.name = "hitArea";
+    this.hitArea.beginFill(0x00ff00, 0.1);
+    this.hitArea.drawRect(0, 0, this.view.width, this.view.height);
+    this.hitArea.endFill();
+
+    this.view.addChild(this.hitArea);
+  }
+
+  setSelectionScale(scale) {
+    this.selectionScale = scale;
+    this.view.scale.set(this.selectionScale);
+  }
+
+  setInteractive(isInteractive) {
+    this.view.interactive = isInteractive;
+
+    const method = isInteractive ? "on" : "off";
+
+    this.view[method]("pointerdown", this.onStart);
+    this.view[method]("pointermove", this.onMove);
+    this.view[method]("pointerup", this.onEnd);
+    this.view[method]("pointerupoutside", this.onEnd);
+  }
+
+  onStart = (e) => {
+    if (this.isEnding) return;
+    this.isDragging = true;
+    this.setActive(true);
+    const {x, y} = e.data.global;
+    this.startPosition = {x: this.view.x, y: this.view.y};
+    this.movePosition = {x, y};
+  };
+
+  onMove = (e) => {
+    if (!this.isDragging) return;
+    const {x, y} = e.data.global;
+    const [xDiff, yDiff] = [x - this.movePosition.x, y - this.movePosition.y].map(diff => diff / this.stage.scale.x);
+    this.movePosition = {x, y};
+    this.view.position.set(this.view.x + xDiff, this.view.y + yDiff);
+  };
+
+  onEnd = (e) => {
+    this.isEnding = true;
+    this.isDragging = false;
+
+    const scaleTween = this.setActive(false);
+    const positionTween = gsap.to(this.view, {
+      x: this.startPosition.x,
+      y: this.startPosition.y,
+      duration: 0.2,
+      ease: "sine.inOut"
+    });
+
+    Promise.all([scaleTween, positionTween]).then(this.clearDraggingData.bind(this));
+  };
+
+  clearDraggingData() {
+    this.isEnding = false;
+    this.startPosition = null;
+    this.movePosition = null;
+  }
+
+  setActive(isActive) {
+    const timeline = gsap.timeline();
+
+    timeline
+    .to(this.view.scale, {
+      x: isActive ? 1 : this.selectionScale,
+      y: isActive ? 1 : this.selectionScale,
+      duration: 0.1,
+      ease: "sine.inOut"
+    })
+    .to(this.hitArea, {
+      alpha: +!isActive,
+      duration: 0.1,
+      ease: "sine.inOut"
+    }, 0);
+
+    return new Promise(res => timeline.eventCallback("onComplete", res));
   }
 }

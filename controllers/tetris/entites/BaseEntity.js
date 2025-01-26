@@ -7,6 +7,7 @@ export default class BaseEntity {
   _id;
 
   constructor(data, type) {
+    this.stage = data.stage;
     this.name = data.name;
     this.storage = data.storage;
     this.eventBus = data.eventBus;

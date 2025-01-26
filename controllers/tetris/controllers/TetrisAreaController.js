@@ -46,6 +46,7 @@ export default class TetrisAreaController extends BaseTetrisController {
         isEmpty: cell === "empty",
         size: cellSize,
         storage: this.storage,
+        stage: this.stage,
         eventBus: this.eventBus,
         name: `cell:${id}`,
       });
