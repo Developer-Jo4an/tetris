@@ -29,12 +29,13 @@ export default class Cell extends BaseEntity {
   }
 
   getPosByName() {
-    const [x, y] = this.name.split(":")[1].split("-").map(Number);
-    return {x, y};
+    const [string, column] = this.name.split(":")[1].split("-").map(Number);
+    return {string, column};
   }
 
   destroy() {
+    if (this.view.destroyed) return;
+    this.view.destroy();
     super.destroy();
-    //todo: destroy cell
   }
 }

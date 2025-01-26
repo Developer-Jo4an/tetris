@@ -27,7 +27,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
     this.generateSquaresGroupArray();
   }
 
-  generateSquaresGroupArray() {
+  generateSquaresGroupArray() { //todo: если можно использовать worker, то использовать
     const {grid} = this.storage.mainSceneSettings.levels[this.level];
 
     const {strings, columns} = grid.reduce((acc, {cells}) => {
@@ -76,7 +76,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
     const possibleFigures = (() => {
       const formattedCells = cells.reduce((acc, cell) => {
-        const [string, column] = cell.id.split("-");
+        const {string, column} = cell.getPosByName();
         if (!acc[string]) acc[string] = [];
         acc[string][column] = cell;
         return acc;
@@ -154,11 +154,9 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   generateSquaresGroupView(shapes) {
     const {spawnArea: {distanceBetweenArea}, area: {margin}} = this.storage.mainSceneSettings;
 
-    this.step++;
-
     const cells = TetrisContainer.getCollectionByType("cell");
 
-    const shapeGroups = shapes.map((shape, index) => {
+    this.shapeGroups = shapes.map((shape, index) => {
       const id = `${this.step}:${index}`;
       return new SquaresGroupView({
         id,
@@ -175,7 +173,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
     const maxHeight = GAME_SIZE.height - tetrisAreaHeight - distanceBetweenArea;
     const maxWidth = GAME_SIZE.width - margin * GAME_SIZE.width * 2;
 
-    const minScale = shapeGroups.reduce((acc, shapeGroup, _, arr) => {
+    const minScale = this.shapeGroups.reduce((acc, shapeGroup, _, arr) => {
       const {view} = shapeGroup;
       const scaleHeight = maxHeight / view.height;
       const scaleWidth = ((maxWidth / arr.length) - ((arr.length - 1) * (margin * GAME_SIZE.width))) / view.width;
@@ -183,7 +181,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
       return Math.min(scale, acc);
     }, Number.MAX_VALUE);
 
-    shapeGroups.forEach((shapeGroup, index, arr) => {
+    this.shapeGroups.forEach((shapeGroup, index, arr) => {
       const {view} = shapeGroup;
       shapeGroup.setSelectionScale(minScale);
       const prevEls = arr.slice(0, index);
@@ -194,26 +192,74 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
       view.alpha = 0;
     });
 
-    shapeGroups.forEach(({view}) => view.position.y = this.squaresGroupArea.height / 2);
+    this.shapeGroups.forEach(({view}) => view.position.y = this.squaresGroupArea.height / 2);
 
     this.squaresGroupArea.pivot.set(this.squaresGroupArea.width / 2, 0);
     this.squaresGroupArea.position.set(GAME_SIZE.width / 2, tetrisAreaHeight + distanceBetweenArea);
 
     this.stage.addChild(this.squaresGroupArea);
 
-    const shapeViews = shapeGroups.map(({view}) => view);
+    const shapeViews = this.shapeGroups.map(({view}) => view);
 
     gsap.to(shapeViews, {
       alpha: 1,
       duration: 0.3,
       ease: "sine.out",
       onComplete: () => {
-        shapeGroups.forEach(shapeGroup => shapeGroup.setInteractive(true));
+        this.shapeGroups.forEach(shapeGroup => shapeGroup.setInteractive(true));
       }
     });
   }
 
   update(deltaTime) {
+    if (!this.shapeGroups) return;
 
+    const draggingFigures = this.shapeGroups.filter(shapeGroup => shapeGroup.isDragging);
+
+    const cells = TetrisContainer.getCollectionByType("cell");
+
+    draggingFigures.forEach(figure => {
+      const leadingSquare = figure.squares.find(square => square.id.endsWith("-leading"));
+      const squarePosition = leadingSquare.view.getGlobalPosition();
+
+      const underCell = cells.find(cell => {
+        const {view} = cell;
+        const cellPosition = view.getGlobalPosition();
+        const distanceX = Math.abs(cellPosition.x - squarePosition.x);
+        const distanceY = Math.abs(cellPosition.y - squarePosition.y);
+        return distanceX <= view.width / 2 && distanceY <= view.height / 2;
+      });
+
+      if (
+        !underCell ||
+        underCell.isEmpty ||
+        underCell.view.children.some(sprite => sprite.name.includes("square"))
+      ) return;
+
+      const {string: leadingString, column: leadingColumn} = leadingSquare.getPosByName();
+
+      const isCanDoStep = figure.squares.every(square => {
+        const {string: squareString, column: squareColumn} = square.getPosByName();
+        const [offsetString, offsetColumn] = [squareString - leadingString, squareColumn - leadingColumn];
+
+        const {string: cellString, column: cellColumn} = underCell.getPosByName();
+
+        const necessaryCellPosition = {string: offsetString + cellString, column: offsetColumn + cellColumn};
+
+        const necessaryCell = cells.find(cell => {
+          const positionData = cell.getPosByName();
+          return (
+            positionData.string === necessaryCellPosition.string &&
+            positionData.column === necessaryCellPosition.column
+          );
+        });
+
+        if (!necessaryCell) return;
+
+        return !necessaryCell.view.children.some(sprite => sprite.name.includes("square"));
+      });
+
+      console.log(isCanDoStep);
+    });
   }
 }

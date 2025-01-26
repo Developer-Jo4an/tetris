@@ -8,6 +8,7 @@ export default class SquaresGroupView extends BaseEntity {
     super(data, "squaresGroupView");
 
     this.startShapes = data.shape;
+    this.squares = [];
 
     this.init();
   }
@@ -29,9 +30,9 @@ export default class SquaresGroupView extends BaseEntity {
 
     const cellSize = globalUtils.getCellSize({gameSize: GAME_SIZE, grid, margin: area.margin});
 
-    this.shapes.forEach(shape => {
+    this.shapes.forEach((shape, index) => {
       const [xMultiplier, yMultiplier] = shape;
-      const id = "empty-empty";
+      const id = `${xMultiplier}-${yMultiplier}${!index ? "-leading" : ""}`;
 
       const square = new Square({
         id,
@@ -42,6 +43,8 @@ export default class SquaresGroupView extends BaseEntity {
         eventBus: this.eventBus,
         size: cellSize
       });
+
+      this.squares.push(square);
 
       square.view.position.set(yMultiplier * cellSize + cellSize / 2, xMultiplier * cellSize + cellSize / 2);
 
@@ -75,7 +78,7 @@ export default class SquaresGroupView extends BaseEntity {
     this.view[method]("pointerupoutside", this.onEnd);
   }
 
-  onStart = (e) => {
+  onStart = e => {
     if (this.isEnding) return;
 
     this.isDragging = true;
@@ -85,7 +88,7 @@ export default class SquaresGroupView extends BaseEntity {
     this.movePosition = {x, y};
   };
 
-  onMove = (e) => {
+  onMove = e => {
     if (!this.isDragging) return;
 
     const {x, y} = e.data.global;
@@ -94,7 +97,7 @@ export default class SquaresGroupView extends BaseEntity {
     this.view.position.set(this.view.x + xDiff, this.view.y + yDiff);
   };
 
-  onEnd = (e) => {
+  onEnd = e => {
     if (!this.isDragging) return;
 
     this.isEnding = true;
