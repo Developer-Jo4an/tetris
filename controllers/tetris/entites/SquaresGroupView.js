@@ -77,6 +77,7 @@ export default class SquaresGroupView extends BaseEntity {
 
   onStart = (e) => {
     if (this.isEnding) return;
+
     this.isDragging = true;
     this.setActive(true);
     const {x, y} = e.data.global;
@@ -86,6 +87,7 @@ export default class SquaresGroupView extends BaseEntity {
 
   onMove = (e) => {
     if (!this.isDragging) return;
+
     const {x, y} = e.data.global;
     const [xDiff, yDiff] = [x - this.movePosition.x, y - this.movePosition.y].map(diff => diff / this.stage.scale.x);
     this.movePosition = {x, y};
@@ -93,18 +95,23 @@ export default class SquaresGroupView extends BaseEntity {
   };
 
   onEnd = (e) => {
+    if (!this.isDragging) return;
+
     this.isEnding = true;
     this.isDragging = false;
 
-    const scaleTween = this.setActive(false);
-    const positionTween = gsap.to(this.view, {
-      x: this.startPosition.x,
-      y: this.startPosition.y,
-      duration: 0.2,
-      ease: "sine.inOut"
-    });
+    const scaleTweenPromise = this.setActive(false);
 
-    Promise.all([scaleTween, positionTween]).then(this.clearDraggingData.bind(this));
+    const positionTweenPromise = new Promise(res =>
+      gsap.to(this.view, {
+        x: this.startPosition.x,
+        y: this.startPosition.y,
+        duration: 0.2,
+        ease: "sine.inOut",
+        onComplete: res
+      }));
+
+    Promise.all([scaleTweenPromise, positionTweenPromise]).then(this.clearDraggingData.bind(this));
   };
 
   clearDraggingData() {
