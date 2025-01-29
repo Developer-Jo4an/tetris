@@ -3,13 +3,15 @@ import {useLoadController} from "../../utils/scene/react/hooks/useLoadController
 import {basePixiImports} from "../../utils/scene/utils/import/import-pixi";
 import useStateReducer from "../../utils/scene/react/hooks/useStateReducer";
 import Loader from "../loader/Loader";
+import {Stats} from "./Stats";
 
 const stateMachine = {
   loadManifest: {availableStates: ["loading"], nextState: "loading", isDefault: true, isLoading: true},
   loading: {availableStates: ["initialization"], nextState: "initialization", isLoading: true},
   initialization: {availableStates: ["showing"], nextState: "showing", isLoading: true},
   showing: {availableStates: ["playing"], nextState: "playing"},
-  playing: {availableStates: [], nextState: ""}
+  playing: {availableStates: ["pause"]},
+  pause: {availableStates: ["playing"], nextState: ""}
 };
 
 const ignoreNextState = ["playing"];
@@ -50,18 +52,17 @@ export default function Scene() {
   useEffect(() => {
     if (!wrapper) return;
 
-    const stateCallbacks = {
+    const callbacks = {
       "state:next": nextStateCallback,
-      "state:change": setStateCallback
+      "state:change": setStateCallback,
     };
 
     const listenerLogic = method => {
-      for (const key in stateCallbacks)
-        wrapper.eventBus[`${method}EventListener`](key, stateCallbacks[key]);
+      for (const key in callbacks)
+        wrapper.eventBus[`${method}EventListener`](key, callbacks[key]);
     };
 
     listenerLogic("add");
-
     return () => listenerLogic("remove");
   }, [wrapper, state]);
 
@@ -71,6 +72,7 @@ export default function Scene() {
     <div className={"tetris"}>
       <Loader isVisible={isLoading}/>
       <div className={"tetris__container"} ref={containerRef}/>
+      <Stats eventBus={wrapper?.eventBus}/>
     </div>
   );
 }

@@ -38,6 +38,15 @@ export default class BaseEntity {
 
   }
 
+  getPosById() {
+    try {
+      const [string, column] = this.id.split("-").map(Number);
+      return {string, column};
+    } catch {
+      return null;
+    }
+  }
+
   add() {
     TetrisContainer.setItemByType(this.type, this);
   }

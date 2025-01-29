@@ -1,6 +1,6 @@
 import Data from "./Data";
 import TetrisController from "./TetrisController";
-import {TetrisPixiWrapper} from "../../controllers/tetris/TetrisPixiWrapper";
+import {TetrisPixiWrapper} from "./TetrisPixiWrapper";
 
 export default class TetrisWrapper extends TetrisPixiWrapper {
   storage = new Data();

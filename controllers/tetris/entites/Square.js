@@ -26,14 +26,19 @@ export default class Square extends BaseEntity {
     this.view = sprite;
   }
 
-  getPosByName() {
-    const [string, column] = this.name.split(":")[1].split("-").map(Number);
-    return {string, column};
+  setParentCell(cell) {
+    this.cell = cell;
+  }
+
+  getParentCell() {
+    return this.cell;
   }
 
   destroy() {
     if (this.view.destroyed) return;
     this.view.destroy();
     super.destroy();
+    const parent = this.getParentCell();
+    parent && parent.removeSquare();
   }
 }

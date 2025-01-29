@@ -2,6 +2,7 @@ import BaseEntity from "./BaseEntity";
 import Square from "./Square";
 import {globalUtils} from "../utils/globalUtils";
 import {GAME_SIZE} from "../TetrisController";
+import TetrisContainer from "../helpers/TetrisContainer";
 
 export default class SquaresGroupView extends BaseEntity {
   constructor(data) {
@@ -9,6 +10,8 @@ export default class SquaresGroupView extends BaseEntity {
 
     this.startShapes = data.shape;
     this.squares = [];
+    this.isCanDoStep = false;
+    this.underCells = [];
 
     this.init();
   }
@@ -16,7 +19,7 @@ export default class SquaresGroupView extends BaseEntity {
   init() {
     const {levels, area} = this.storage.mainSceneSettings;
 
-    const {grid} = levels[this.level];
+    const {grid} = levels[this.level.value];
 
     this.view = new PIXI.Container();
     this.view.name = `${this.name}-container`;
@@ -30,14 +33,14 @@ export default class SquaresGroupView extends BaseEntity {
 
     const cellSize = globalUtils.getCellSize({gameSize: GAME_SIZE, grid, margin: area.margin});
 
-    this.shapes.forEach((shape, index) => {
+    this.shapes.forEach(shape => {
       const [xMultiplier, yMultiplier] = shape;
-      const id = `${xMultiplier}-${yMultiplier}${!index ? "-leading" : ""}`;
+      const id = `${xMultiplier}-${yMultiplier}`;
 
       const square = new Square({
         id,
         level: this.level,
-        name: `square:${id}`,
+        name: `square:${id}_group`,
         storage: this.storage,
         stage: this.stage,
         eventBus: this.eventBus,
@@ -95,6 +98,9 @@ export default class SquaresGroupView extends BaseEntity {
     const [xDiff, yDiff] = [x - this.movePosition.x, y - this.movePosition.y].map(diff => diff / this.stage.scale.x);
     this.movePosition = {x, y};
     this.view.position.set(this.view.x + xDiff, this.view.y + yDiff);
+    this.setPossibleStepModeToCell([]);
+    this.checkCorrectStep();
+    this.setPossibleStepModeToCell(this.underCells);
   };
 
   onEnd = e => {
@@ -103,6 +109,24 @@ export default class SquaresGroupView extends BaseEntity {
     this.isEnding = true;
     this.isDragging = false;
 
+    this[`${this.isCanDoStep ? "doStep" : "setInactive"}`]();
+  };
+
+  clearDraggingData() {
+    this.isEnding = false;
+    this.startPosition = null;
+    this.movePosition = null;
+  }
+
+  doStep() {
+    this.setPossibleStepModeToCell([]);
+    this.underCells.forEach((cell, index) => cell.addSquare(this.squares[index]));
+    this.isCanDoStep = false;
+    this.underCells = [];
+    this.destroy();
+  }
+
+  setInactive() {
     const scaleTweenPromise = this.setActive(false);
 
     const positionTweenPromise = new Promise(res =>
@@ -115,12 +139,6 @@ export default class SquaresGroupView extends BaseEntity {
       }));
 
     Promise.all([scaleTweenPromise, positionTweenPromise]).then(this.clearDraggingData.bind(this));
-  };
-
-  clearDraggingData() {
-    this.isEnding = false;
-    this.startPosition = null;
-    this.movePosition = null;
   }
 
   setActive(isActive) {
@@ -140,5 +158,40 @@ export default class SquaresGroupView extends BaseEntity {
     }, 0);
 
     return new Promise(res => timeline.eventCallback("onComplete", res));
+  }
+
+  setPossibleStepModeToCell(possibleCells) {
+    const cells = TetrisContainer.getCollectionByType("cell");
+    cells.forEach(cell => {
+      const mode = possibleCells.includes(cell);
+      cell.setMode(mode ? "possibleStep" : "standard");
+    });
+  }
+
+  checkCorrectStep() {
+    const cells = TetrisContainer.getCollectionByType("cell");
+
+    const underCells = this.squares.reduce((acc, square,) => {
+      const squarePosition = square.view.getGlobalPosition();
+
+      const underCell = cells.find(cell => {
+        const cellPosition = cell.view.getGlobalPosition();
+        const [distanceX, distanceY] = ["x", "y"].map(axis =>
+          Math.abs(cellPosition[axis] - squarePosition[axis]) / this.stage.scale[axis]
+        );
+        return distanceX <= cell.view.width / 2 && distanceY <= cell.view.height / 2;
+      });
+
+      return (!underCell || underCell.isEmpty || !!underCell.getSquare()) ? acc : [...acc, underCell];
+    }, []);
+
+    this.isCanDoStep = underCells.length === this.squares.length;
+    this.underCells = this.isCanDoStep ? underCells : [];
+  }
+
+  destroy() {
+    if (this.view.destroyed) return;
+    this.view.destroy();
+    super.destroy();
   }
 }

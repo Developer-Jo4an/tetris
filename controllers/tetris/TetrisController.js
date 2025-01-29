@@ -2,12 +2,14 @@ import PixiController from "../../utils/scene/containers/PixiController";
 import TetrisAreaController from "./controllers/TetrisAreaController";
 import TetrisSquaresController from "./controllers/TetrisSquaresController";
 import TetrisSpawnAreaController from "./controllers/TetrisSpawnAreaController";
+import TetrisGameController from "./controllers/TetrisGameController";
 
 export const GAME_SIZE = {width: 700, height: 1100};
 
 export default class TetrisController extends PixiController {
 
   static CONTROLLERS = [
+    TetrisGameController,
     TetrisAreaController,
     TetrisSquaresController,
     TetrisSpawnAreaController
@@ -31,8 +33,20 @@ export default class TetrisController extends PixiController {
 
   initializationSelect() {
     this.initControllers();
-
     this.app.ticker.add(this.update);
+  }
+
+  pauseSelect() {
+    this.setPause(true);
+  }
+
+  playingSelect() {
+    this.setPause(false);
+  }
+
+  setPause(isPause) {
+    gsap.globalTimeline[isPause ? "pause" : "play"]();
+    this.app.ticker[isPause ? "stop" : "start"]();
   }
 
   initControllers() {
@@ -42,7 +56,12 @@ export default class TetrisController extends PixiController {
   }
 
   setLevel(level) {
-    this.level = level;
+    if (this.level) {
+      this.level.value = level;
+      return;
+    }
+
+    this.level = {value: level};
   }
 
   update(deltaTime) {
@@ -59,5 +78,11 @@ export default class TetrisController extends PixiController {
       (width - GAME_SIZE.width * scale) / 2,
       (height - GAME_SIZE.height * scale) / 2
     );
+  }
+
+  reset() {
+    this.app.ticker.stop();
+    gsap.globalTimeline.play();
+    this.controllers.forEach(controller => controller.reset());
   }
 }

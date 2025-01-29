@@ -25,7 +25,7 @@ export default class TetrisAreaController extends BaseTetrisController {
   init() {
     const {levels, area} = this.storage.mainSceneSettings;
 
-    const {grid} = levels[this.level];
+    const {grid} = levels[this.level.value];
 
     const cellSize = globalUtils.getCellSize({gameSize: GAME_SIZE, grid, margin: area.margin});
 
@@ -70,7 +70,7 @@ export default class TetrisAreaController extends BaseTetrisController {
   showingSelect() {
     const {levels} = this.storage.mainSceneSettings;
 
-    const {startHidePercent} = levels[this.level];
+    const {startHideCellsMultiplier} = levels[this.level.value];
 
     const cells = TetrisContainer.getCollectionByType("cell");
 
@@ -82,7 +82,7 @@ export default class TetrisAreaController extends BaseTetrisController {
       return acc;
     }, {shuffledViews: [], shuffledScales: []});
 
-    const hideSquaresCount = Math.floor(startHidePercent * cells?.length);
+    const hideSquaresCount = Math.floor(startHideCellsMultiplier * cells?.length);
 
     const hideSquares = (() => {
       const arr = [];
