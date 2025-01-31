@@ -16,18 +16,27 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
   constructor(data) {
     super(data);
+
+    this.stepped = this.stepped.bind(this);
+
+    this.init();
   }
 
   init() {
     this.squaresGroupArea = new PIXI.Container();
     this.squaresGroupArea.name = "spawnArea";
+    this.initEvents();
+  }
+
+  initEvents() {
+    this.eventBus.addEventListener("step:stepped", this.stepped);
   }
 
   playingSelect() {
     this.generateSquaresGroupArray();
   }
 
-  generateSquaresGroupArray() { //todo: если можно использовать worker, то использовать
+  generateSquaresGroupArray() { //todo: если можно использовать worker, то использовать, так как метод может очень долго генерить
     const {grid} = this.storage.mainSceneSettings.levels[this.level.value];
 
     const {strings, columns} = grid.reduce((acc, {cells}) => {
@@ -211,6 +220,27 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
         shapeGroups.forEach(shapeGroup => shapeGroup.setInteractive(true));
       }
     });
+  }
+
+  setInteractiveShapes(isInteractive) {
+    const shapeGroups = TetrisContainer.getCollectionByType("squaresGroupView");
+    shapeGroups.forEach(shape => shape.setInteractive(isInteractive));
+  }
+
+  async stepped() {
+    const shapeGroups = TetrisContainer.getCollectionByType("squaresGroupView");
+
+    this.setInteractiveShapes(false);
+
+    await this.checkOnAddPoints();
+
+    shapeGroups.length
+      ? this.setInteractiveShapes(true)
+      : this.generateSquaresGroupArray();
+  }
+
+  checkOnAddPoints() {
+    return Promise.resolve();
   }
 
   update(deltaTime) { //todo: оптимизировать алгоритм нахождения соответсвий

@@ -11,8 +11,6 @@ export default class BaseTetrisController {
     this.level = data.level;
 
     this.eventBus.addEventListener("state-adapter:state-changed", this.stateChanged);
-
-    this.init();
   }
 
   stateChanged({data: {state}}) {

@@ -1,17 +1,20 @@
 import {useEffect, useState} from "react";
 
 export const Stats = ({eventBus}) => {
-  const [stats, setStats] = useState({});
+  const [stats, setStats] = useState([]);
 
   useEffect(() => {
     if (!eventBus) return;
 
     const callbacks = {
       "timeout:update": ({remainder}) => {
-        console.log(remainder);
+        setStats(prev => ({...prev, remainingTime: remainder}));
       },
       "targetPoints:update": ({targetPoints}) => {
-        console.log(targetPoints);
+        setStats(prev => ({...prev, targetPoints}));
+      },
+      "currentPoints:update": ({updatedCount}) => {
+        setStats(prev => ({...prev, currentCount: updatedCount}));
       }
     };
 
@@ -25,6 +28,10 @@ export const Stats = ({eventBus}) => {
   }, [eventBus]);
 
   return (
-    <></>
+    <div className={"stats"}>
+      <div className={"stats__list"}>
+        {Object.entries(stats).map(([key, value]) => <div className={"stats__item"}>{key}:{value}</div>)}
+      </div>
+    </div>
   );
 };

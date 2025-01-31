@@ -124,6 +124,7 @@ export default class SquaresGroupView extends BaseEntity {
     this.isCanDoStep = false;
     this.underCells = [];
     this.destroy();
+    this.eventBus.dispatchEvent({type: "step:stepped"});
   }
 
   setInactive() {

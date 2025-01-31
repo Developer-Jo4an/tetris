@@ -3,7 +3,7 @@ import {useLoadController} from "../../utils/scene/react/hooks/useLoadController
 import {basePixiImports} from "../../utils/scene/utils/import/import-pixi";
 import useStateReducer from "../../utils/scene/react/hooks/useStateReducer";
 import Loader from "../loader/Loader";
-import {Stats} from "./Stats";
+import {Stats} from "../stats/Stats";
 
 const stateMachine = {
   loadManifest: {availableStates: ["loading"], nextState: "loading", isDefault: true, isLoading: true},

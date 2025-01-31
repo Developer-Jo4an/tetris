@@ -5,6 +5,8 @@ import Square from "../entites/Square";
 export default class TetrisSquaresController extends BaseTetrisController {
   constructor(data) {
     super(data);
+
+    this.init();
   }
 
   initializationSelect() {
@@ -21,7 +23,7 @@ export default class TetrisSquaresController extends BaseTetrisController {
         size: cell.size
       });
 
-      cell.addSquare(square)
+      cell.addSquare(square);
     });
   }
 }

@@ -20,6 +20,8 @@ export default class TetrisAreaController extends BaseTetrisController {
 
   constructor(data) {
     super(data);
+
+    this.init()
   }
 
   init() {
