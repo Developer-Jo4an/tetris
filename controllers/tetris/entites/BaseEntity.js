@@ -40,8 +40,8 @@ export default class BaseEntity {
 
   getPosById() {
     try {
-      const [string, column] = this.id.split("-").map(Number);
-      return {string, column};
+      const [row, column] = this.id.split("-").map(Number);
+      return {row, column};
     } catch {
       return null;
     }

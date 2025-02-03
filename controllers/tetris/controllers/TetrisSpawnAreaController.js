@@ -39,9 +39,9 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   generateSquaresGroupArray() { //todo: если можно использовать worker, то использовать, так как метод может очень долго генерить
     const {grid} = this.storage.mainSceneSettings.levels[this.level.value];
 
-    const {strings, columns} = grid.reduce((acc, {cells}) => {
+    const {rows, columns} = grid.reduce((acc, {cells}) => {
       return {...acc, columns: Math.max(cells.length, acc.columns)};
-    }, {columns: 0, strings: grid.length});
+    }, {columns: 0, rows: grid.length});
 
     const cells = TetrisContainer.getCollectionByType("cell");
     const squares = TetrisContainer.getCollectionByType("square");
@@ -53,7 +53,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
     const squaresCount = Math.ceil(diff * randomPercent);
 
     const shapesCount = (() => {
-      const copiedRanges = JSON.parse(JSON.stringify(constants.ranges)).reverse();
+      const copiedRanges = structuredClone(constants.ranges).reverse();
 
       const necessaryRange = copiedRanges?.reduce((acc, [max, count]) => {
         return squaresCount >= max && acc < count ? count : acc;
@@ -85,9 +85,9 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
     const possibleFigures = (() => {
       const formattedCells = cells.reduce((acc, cell) => {
-        const {string, column} = cell.getPosById();
-        if (!acc[string]) acc[string] = [];
-        acc[string][column] = cell;
+        const {row, column} = cell.getPosById();
+        if (!acc[row]) acc[row] = [];
+        acc[row][column] = cell;
         return acc;
       }, []);
 
@@ -97,7 +97,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
       const isValid = (x, y) => (
         x >= 0 && y >= 0 &&
-        x < strings && y < columns &&
+        x < rows && y < columns &&
         isCellEmpty(formattedCells[x][y])
       );
 
@@ -119,7 +119,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
         }
       };
 
-      for (let row = 0; row < strings; row++) {
+      for (let row = 0; row < rows; row++) {
         for (let col = 0; col < columns; col++) {
           if (isCellEmpty(formattedCells[row][col])) {
             const visited = new Set();
@@ -240,9 +240,66 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   }
 
   checkOnAddPoints() {
+    const cells = TetrisContainer.getCollectionByType("cell");
+
+    const fullRowsCellIds = this.checkColumnOrRow("row");
+    const fullColumnsCellIds = this.checkColumnOrRow("column");
+
+    const allUniqSquares = [...new Set([...fullColumnsCellIds, ...fullRowsCellIds])];
+
     return Promise.resolve();
   }
 
-  update(deltaTime) { //todo: оптимизировать алгоритм нахождения соответсвий
+  checkColumnOrRow(side) {
+    const cells = TetrisContainer.getCollectionByType("cell").reduce((acc, cell) => {
+      const {row, column} = cell.getPosById();
+      if (!acc[row]) acc[row] = [];
+      acc[row][column] = cell;
+      return acc;
+    }, []);
+
+    const length = side === "row" ? cells.length : cells[0].length;
+
+    const completed = [];
+
+    for (let counter = 0; counter < length; counter++) {
+      let isSideComplete = true;
+
+      const subLength = side === "row" ? cells[counter].length : cells.length;
+
+      for (let subCounter = 0; subCounter < subLength; subCounter++) {
+        const [index, subIndex] = [side === "row" ? counter : subCounter, side === "row" ? subCounter : counter];
+
+        const necessaryCell = cells[index][subIndex];
+
+        if (!necessaryCell.getSquare()) {
+          isSideComplete = false;
+          break;
+        }
+      }
+
+      if (isSideComplete)
+        ({
+          row: () => {
+            try {
+              completed.push(...(cells[counter].map(cell => cell.id)));
+
+            } catch (e) {
+              console.log(counter);
+              console.log(cells);
+              debugger
+            }
+          },
+          column: () => {
+            for (let row = 0; row < cells.length; row++)
+              completed.push(cells[row][counter].id);
+          }
+        })[side]();
+    }
+
+    return completed;
+  }
+
+  update(deltaTime) {
   }
 }
