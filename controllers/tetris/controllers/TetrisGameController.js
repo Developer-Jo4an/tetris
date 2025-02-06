@@ -4,6 +4,8 @@ export default class TetrisGameController extends BaseTetrisController {
   constructor(data) {
     super(data);
 
+    this.win = this.win.bind(this);
+    this.lose = this.lose.bind(this);
     this.currentPointsAdd = this.currentPointsAdd.bind(this);
 
     this.timeoutTween = null;
@@ -14,7 +16,6 @@ export default class TetrisGameController extends BaseTetrisController {
   }
 
   init() {
-    // this.initCurrentPoints();
     this.initTimeout();
     this.initTargetPoints();
     this.initEvents();
@@ -61,13 +62,17 @@ export default class TetrisGameController extends BaseTetrisController {
 
   initEvents() {
     this.eventBus.addEventListener("currentPoints:add", this.currentPointsAdd);
+    this.eventBus.addEventListener("game:win", this.win);
+    this.eventBus.addEventListener("game:lose", this.lose);
   }
 
   currentPointsAdd({addCount}) {
     this.currentPoints = Math.min(this.currentPoints + addCount, this.targetPoints);
+
     this.eventBus.dispatchEvent({type: "currentPoints:update", updatedCount: this.currentPoints});
+
     if (this.currentPoints === this.targetPoints)
-      this.win();
+      this.eventBus.dispatchEvent({type: "game:win"});
   }
 
   win() {
@@ -79,6 +84,7 @@ export default class TetrisGameController extends BaseTetrisController {
   }
 
   playingSelect() {
-    if (this.timeoutTween) this.timeoutTween.play();
+    if (this.timeoutTween)
+      this.timeoutTween.play();
   }
 }

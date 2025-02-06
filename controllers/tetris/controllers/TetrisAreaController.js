@@ -3,16 +3,11 @@ import {GAME_SIZE} from "../TetrisController";
 import Cell from "../entites/Cell";
 import TetrisContainer from "../helpers/TetrisContainer";
 import {globalUtils} from "../utils/globalUtils";
+import {shuffle} from "../../../utils/scene/utils/random/shuffle";
 
 const utils = {
   getCellPos: (cellSize, axes) => {
     return (axes * cellSize) + (cellSize / 2);
-  },
-  shuffle: arr => {
-    return arr
-    .map(value => ({value, sort: Math.random()}))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({value}) => value);
   }
 };
 
@@ -76,7 +71,7 @@ export default class TetrisAreaController extends BaseTetrisController {
 
     const cells = TetrisContainer.getCollectionByType("cell");
 
-    const shuffledCells = utils.shuffle(cells);
+    const shuffledCells = shuffle(cells);
 
     const {shuffledViews, shuffledScales} = shuffledCells.reduce((acc, {view}) => {
       acc.shuffledViews.push(view);

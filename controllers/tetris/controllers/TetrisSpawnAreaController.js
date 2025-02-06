@@ -1,10 +1,42 @@
 import BaseTetrisController from "./BaseTetrisController";
 import TetrisContainer from "../helpers/TetrisContainer";
-import {getRandomFromRange, getRandomIntFromRange} from "../../../utils/data/random/getRandomFromRange";
+import {getRandomFromRange} from "../../../utils/data/random/getRandomFromRange";
 import SquaresGroupView from "../entites/SquaresGroupView";
 import {GAME_SIZE} from "../TetrisController";
+import {shuffle} from "../../../utils/scene/utils/random/shuffle";
 
-const utils = {};
+const utils = {
+  generateNumberPairs: (count, partials) => {
+    const result = [];
+
+    const backtrack = (current, remaining, count) => {
+      if (count === partials) {
+        !remaining && result.push([...current]);
+        return;
+      }
+
+      const start = current.length ? current[current.length - 1] : 1;
+
+      for (let i = start; i <= remaining; i++) {
+        current.push(i);
+        backtrack(current, remaining - i, count + 1);
+        current.pop();
+      }
+    };
+
+    backtrack([], count, 0);
+
+    return result;
+  },
+  expandRange: range => {
+    const [start, end] = range;
+    if (!end) return [start];
+    return Array.from({length: end - start + 1}, (_, i) => start + i);
+  },
+  spliceOneAndReturn: arr => {
+    return arr.splice(Math.floor(Math.random() * arr.length), 1)[0];
+  }
+};
 
 const constants = {
   directions: [[0, 1], [1, 0], [0, -1], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]],
@@ -36,128 +68,153 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
     this.generateSquaresGroupArray();
   }
 
-  generateSquaresGroupArray() { //todo: если можно использовать worker, то использовать, так как метод может очень долго генерить
-    const {grid} = this.storage.mainSceneSettings.levels[this.level.value];
+  isCellEmpty(cell) {
+    return cell && !Boolean(cell.getSquare());
+  }
 
-    const {rows, columns} = grid.reduce((acc, {cells}) => {
-      return {...acc, columns: Math.max(cells.length, acc.columns)};
-    }, {columns: 0, rows: grid.length});
+  isValidForShapeBuilding(x, y) {
+    const grid = this.storage.mainSceneSettings.levels[this.level.value].grid;
+    const rows = grid.length;
+    const columns = Math.max(...grid.map(({cells}) => cells.length));
 
+    if (x < 0 || y < 0 || x >= rows || y >= columns) return false;
+
+    const cells = TetrisContainer.getCollectionByType("cell");
+
+    const necessaryCell = cells.find(cell => {
+      const {row, column} = cell.getPosById();
+      return x === row && column === y;
+    });
+
+    return necessaryCell && this.isCellEmpty(necessaryCell);
+  }
+
+  cellsToGrid() {
+    const cells = TetrisContainer.getCollectionByType("cell");
+
+    return cells.reduce((acc, cell) => {
+      const [string, column] = cell.id.split("-");
+      if (!acc[string]) acc[string] = [];
+      acc[string][column] = cell;
+      return acc;
+    }, []);
+  }
+
+  generateSquaresGroupArray() {
     const cells = TetrisContainer.getCollectionByType("cell");
     const squares = TetrisContainer.getCollectionByType("square");
 
     const diff = cells.length - squares.length;
-
     const randomPercent = getRandomFromRange(0.25, 0.4);
-
     const squaresCount = Math.ceil(diff * randomPercent);
 
-    const shapesCount = (() => {
-      const copiedRanges = structuredClone(constants.ranges).reverse();
 
-      const necessaryRange = copiedRanges?.reduce((acc, [max, count]) => {
-        return squaresCount >= max && acc < count ? count : acc;
-      }, 1);
+    const maxShapes = constants.ranges?.reduce((acc, range) =>
+        squaresCount >= range[0] && acc < range[1]
+          ? range[1]
+          : acc
+      , 0);
+    const shapesRange = utils.expandRange([...new Set([1, maxShapes])]);
 
-      return getRandomIntFromRange(1, necessaryRange);
-    })();
+    const shuffledCells = shuffle(this.cellsToGrid()).map(arr => shuffle(arr));
 
-    const shapesFormCombinations = (() => {
-      const result = [];
+    let totalShapes;
+    let totalShapeForms;
 
-      const backtrack = (current, remaining, count) => {
-        if (count === shapesCount) {
-          !remaining && result.push([...current]);
-          return;
-        }
-        const start = current.length ? current[current.length - 1] : 1;
-        for (let i = start; i <= remaining; i++) {
-          current.push(i);
-          backtrack(current, remaining - i, count + 1);
-          current.pop();
-        }
-      };
+    while (!totalShapes && shapesRange.length) {
+      const randomShapesCount = utils.spliceOneAndReturn(shapesRange);
 
-      backtrack([], squaresCount, 0);
+      const shapesFormCombinations = utils.generateNumberPairs(squaresCount, randomShapesCount);
 
-      return result;
-    })();
+      while (shapesFormCombinations.length && !totalShapes) {
+        const randomShapeForm = utils.spliceOneAndReturn(shapesFormCombinations).sort((a, b) => b - a);
 
-    const possibleFigures = (() => {
-      const formattedCells = cells.reduce((acc, cell) => {
-        const {row, column} = cell.getPosById();
-        if (!acc[row]) acc[row] = [];
-        acc[row][column] = cell;
-        return acc;
-      }, []);
+        const maxShape = Math.max(...randomShapeForm);
 
-      const allShapes = [];
+        const allShapes = [];
 
-      const isCellEmpty = cell => !Boolean(cell.view.getChildByName(`square:${cell.id}-sprite`));
+        const checkCompleted = () => {
+          const reservedPlaces = [];
+          return randomShapeForm.every(shapeLength => {
+            return allShapes.some(shape => {
+              const isCanShape = (
+                shape.length === shapeLength &&
+                shape.every(place => !reservedPlaces.includes(place))
+              );
+              if (isCanShape)
+                reservedPlaces.push(...shape);
+              return isCanShape;
+            });
+          });
+        };
 
-      const isValid = (x, y) => (
-        x >= 0 && y >= 0 &&
-        x < rows && y < columns &&
-        isCellEmpty(formattedCells[x][y])
-      );
+        const buildShape = (shape, visited, x, y) => {
+          if (shape.length > maxShape) return;
 
-      const buildShape = (shape, visited, x, y) => {
-        if (shape.length > squaresCount) return;
+          allShapes.push([...shape]);
 
-        allShapes.push([...shape]);
+          if (checkCompleted())
+            return true;
 
-        for (const [dx, dy] of constants.directions) {
-          const newX = x + dx;
-          const newY = y + dy;
-          if (isValid(newX, newY) && !visited.has(`${newX}:${newY}`)) {
-            visited.add(`${newX}:${newY}`);
-            shape.push(`${newX}:${newY}`);
-            buildShape(shape, visited, newX, newY);
+          let isFindAllShapes;
+
+          for (const [dx, dy] of constants.directions) {
+            const newX = x + dx;
+            const newY = y + dy;
+            const id = `${newX}-${newY}`;
+
+            if (!this.isValidForShapeBuilding(newX, newY) || visited.has(id)) continue;
+
+            visited.add(id);
+            shape.push(id);
+            isFindAllShapes = buildShape(shape, visited, newX, newY);
             shape.pop();
-            visited.delete(`${newX}:${newY}`);
+            visited.delete(id);
+            if (isFindAllShapes) break;
           }
-        }
-      };
 
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < columns; col++) {
-          if (isCellEmpty(formattedCells[row][col])) {
+          return isFindAllShapes;
+        };
+
+        for (const someRow of shuffledCells) {
+          if (totalShapes) break;
+          for (const necessaryCell of someRow) {
+            if (totalShapes) break;
+
+            if (!this.isCellEmpty(necessaryCell)) continue;
+            const {row, column: col} = necessaryCell.getPosById();
             const visited = new Set();
-            visited.add(`${row}:${col}`);
-            buildShape([`${row}:${col}`], visited, row, col);
+            visited.add(necessaryCell.id);
+            const isCompleted = buildShape([necessaryCell.id], visited, row, col);
+            if (isCompleted) {
+              totalShapeForms = randomShapeForm;
+              totalShapes = allShapes;
+            }
           }
         }
       }
-      const shiftCount = Math.floor(Math.random() * allShapes.length);
-
-      return [...allShapes.slice(0, shiftCount), ...allShapes.slice(shiftCount)];
-    })();
-
-    const necessaryShapes = [];
-
-    while (necessaryShapes.length !== shapesCount && shapesFormCombinations.length) {
-      necessaryShapes.length = 0;
-
-      const randomIndex = getRandomIntFromRange(0, shapesFormCombinations.length - 1);
-      const value = shapesFormCombinations.splice(randomIndex, 1)[0];
-
-      value.forEach(shapeLength => {
-        if (necessaryShapes.length === shapesCount) return;
-
-        const usedShapes = necessaryShapes.reduce((acc, figure) => [...acc, ...figure], []);
-
-        const necessaryFigure = possibleFigures.find(figure => {
-          return figure.length === shapeLength && !figure.some(subShape => usedShapes.includes(subShape));
-        });
-
-        if (necessaryFigure)
-          necessaryShapes.push(necessaryFigure);
-      });
     }
 
-    const callbackKey = `generateSquaresGroup${necessaryShapes.length !== shapesCount ? "Array" : "View"}`;
+    if (!totalShapes) {
+      this.generateSquaresGroupArray();
+      return;
+    }
 
-    this[callbackKey]?.(necessaryShapes);
+    const shuffledShapes = shuffle(totalShapes);
+
+    const usedShapes = [];
+
+    for (const shape of shuffledShapes) {
+      const shapeIndex = totalShapeForms.indexOf(shape.length);
+      if (shapeIndex < 0) continue;
+      const flatted = usedShapes.flat();
+      const isUniqShapes = shape.every(place => !flatted.includes(place));
+      if (!isUniqShapes) continue;
+      totalShapeForms.splice(shapeIndex, 1);
+      usedShapes.push(shape);
+    }
+
+    this.generateSquaresGroupView(usedShapes);
   }
 
   generateSquaresGroupView(shapes) {
@@ -232,7 +289,19 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
     this.setInteractiveShapes(false);
 
-    await this.checkOnAddPoints();
+    const checkPoints = await this.checkOnAddPoints();
+
+    const checkOnLose = this.checkLose();
+
+    if (checkOnLose) {
+      gsap.to({}, {
+        duration: 1,
+        onComplete: () => {
+          this.eventBus.dispatchEvent({type: "game:lose"});
+        }
+      });
+      return;
+    }
 
     shapeGroups.length
       ? this.setInteractiveShapes(true)
@@ -240,14 +309,36 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   }
 
   checkOnAddPoints() {
-    const cells = TetrisContainer.getCollectionByType("cell");
-
     const fullRowsCellIds = this.checkColumnOrRow("row");
     const fullColumnsCellIds = this.checkColumnOrRow("column");
 
     const allUniqSquares = [...new Set([...fullColumnsCellIds, ...fullRowsCellIds])];
 
-    return Promise.resolve();
+    if (!allUniqSquares.length)
+      return Promise.resolve();
+
+    const cells = TetrisContainer.getCollectionByType("cell");
+
+    const necessaryCells = cells.filter(({id}) => allUniqSquares.includes(id));
+
+    const squares = necessaryCells.map(cell => cell.getSquare());
+
+    const shuffledSquaresViews = shuffle(squares.map(({view}) => view));
+
+    const tween = gsap.to(shuffledSquaresViews, { //todo: в константы delay
+      alpha: 0,
+      delay: i => 0.3 + (i * 0.05),
+      duration: 0.3,
+      ease: "sine.inOut"
+    });
+
+    const onEndHideAnimation = res => {
+      squares.forEach(square => square.destroy());
+      this.eventBus.dispatchEvent({type: "currentPoints:add", addCount: squares?.length});
+      res();
+    };
+
+    return new Promise(res => tween.eventCallback("onComplete", () => onEndHideAnimation(res)));
   }
 
   checkColumnOrRow(side) {
@@ -281,14 +372,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
       if (isSideComplete)
         ({
           row: () => {
-            try {
-              completed.push(...(cells[counter].map(cell => cell.id)));
-
-            } catch (e) {
-              console.log(counter);
-              console.log(cells);
-              debugger
-            }
+            completed.push(...(cells[counter].map(cell => cell.id)));
           },
           column: () => {
             for (let row = 0; row < cells.length; row++)
@@ -300,6 +384,34 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
     return completed;
   }
 
+  checkLose() {
+    const groups = TetrisContainer.getCollectionByType("squaresGroupView");
+
+    if (!groups.length) return;
+
+    const cells = TetrisContainer.getCollectionByType("cell");
+
+    const stillPlaying = groups.some(({normalizedPositions}) => {
+      return cells.some(cell => {
+        if (!this.isCellEmpty(cell)) return;
+
+        const {row, column} = cell.getPosById();
+
+        return normalizedPositions.every(([x, y]) => {
+          const cellId = `${x + row}-${y + column}`;
+          const thisCell = cells.find(cell => cell.getPosById() === cellId);
+          return thisCell && this.isCellEmpty(thisCell);
+        });
+      });
+    });
+
+    return !stillPlaying;
+  }
+
   update(deltaTime) {
+  }
+
+  reset() {
+    this.cellSize = null;
   }
 }

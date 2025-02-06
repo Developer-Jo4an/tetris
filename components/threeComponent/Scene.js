@@ -16,7 +16,7 @@ const stateMachine = {
 
 const ignoreNextState = ["playing"];
 
-export default function Scene() {
+const Scene = () => {
   const [wrapper, setWrapper] = useState();
   const [state, setState] = useState(Object.entries(stateMachine).find(([_, value]) => value.isDefault)[0]);
   const containerRef = useRef();
@@ -75,4 +75,6 @@ export default function Scene() {
       <Stats eventBus={wrapper?.eventBus}/>
     </div>
   );
-}
+};
+
+export default Scene;

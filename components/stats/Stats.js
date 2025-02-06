@@ -30,7 +30,7 @@ export const Stats = ({eventBus}) => {
   return (
     <div className={"stats"}>
       <div className={"stats__list"}>
-        {Object.entries(stats).map(([key, value]) => <div className={"stats__item"}>{key}:{value}</div>)}
+        {Object.entries(stats).map(([key, value]) => <div key={key} className={"stats__item"}>{key}:{value}</div>)}
       </div>
     </div>
   );

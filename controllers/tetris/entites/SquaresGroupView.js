@@ -24,8 +24,8 @@ export default class SquaresGroupView extends BaseEntity {
     this.view = new PIXI.Container();
     this.view.name = `${this.name}-container`;
 
-    this.shapes = (() => {
-      const toNumberFormat = this.startShapes.map(item => item.split(":").map(Number));
+    this.normalizedPositions = (() => {
+      const toNumberFormat = this.startShapes.map(item => item.split("-").map(Number));
       const minX = Math.min(...toNumberFormat.map(pos => pos[0]));
       const minY = Math.min(...toNumberFormat.map(pos => pos[1]));
       return toNumberFormat.map(([x, y]) => [x - minX, y - minY]);
@@ -33,9 +33,9 @@ export default class SquaresGroupView extends BaseEntity {
 
     const cellSize = globalUtils.getCellSize({gameSize: GAME_SIZE, grid, margin: area.margin});
 
-    this.shapes.forEach(shape => {
-      const [xMultiplier, yMultiplier] = shape;
-      const id = `${xMultiplier}-${yMultiplier}`;
+    this.normalizedPositions.forEach(position => {
+      const [xNormalized, yNormalized] = position;
+      const id = `${xNormalized}-${yNormalized}`;
 
       const square = new Square({
         id,
@@ -49,7 +49,7 @@ export default class SquaresGroupView extends BaseEntity {
 
       this.squares.push(square);
 
-      square.view.position.set(yMultiplier * cellSize + cellSize / 2, xMultiplier * cellSize + cellSize / 2);
+      square.view.position.set(yNormalized * cellSize + cellSize / 2, xNormalized * cellSize + cellSize / 2);
 
       this.view.addChild(square.view);
     });
