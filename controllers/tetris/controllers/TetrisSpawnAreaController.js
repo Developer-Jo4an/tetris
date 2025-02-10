@@ -289,7 +289,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
     this.setInteractiveShapes(false);
 
-    const checkPoints = await this.checkOnAddPoints();
+    await this.checkOnAddPoints();
 
     const checkOnLose = this.checkLose();
 
@@ -384,7 +384,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
     return completed;
   }
 
-  checkLose() {
+  checkLose() { //todo: сделать логику проигры
     const groups = TetrisContainer.getCollectionByType("squaresGroupView");
 
     if (!groups.length) return;
