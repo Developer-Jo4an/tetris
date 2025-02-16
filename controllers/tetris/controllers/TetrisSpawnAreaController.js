@@ -108,7 +108,6 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
     const randomPercent = getRandomFromRange(0.25, 0.4);
     const squaresCount = Math.ceil(diff * randomPercent);
 
-
     const maxShapes = constants.ranges?.reduce((acc, range) =>
         squaresCount >= range[0] && acc < range[1]
           ? range[1]
@@ -231,7 +230,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
         stage: this.stage,
         storage: this.storage,
         eventBus: this.eventBus,
-        name: `squaresGroupView:${id}`,
+        name: `squaresGroupView:${id}`
       });
     });
 
@@ -291,9 +290,9 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
     await this.checkOnAddPoints();
 
-    const checkOnLose = this.checkLose();
+    const isLose = shapeGroups?.length && this.checkLose();
 
-    if (checkOnLose) {
+    if (isLose) {
       gsap.to({}, {
         duration: 1,
         onComplete: () => {
@@ -387,25 +386,22 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   checkLose() { //todo: сделать логику проигры
     const groups = TetrisContainer.getCollectionByType("squaresGroupView");
 
-    if (!groups.length) return;
-
     const cells = TetrisContainer.getCollectionByType("cell");
 
-    const stillPlaying = groups.some(({normalizedPositions}) => {
+    const groupShapes = groups.map(({squares}) => squares.reduce((acc, square) => [...acc, square.getPosById()], []));
+
+    return !groupShapes.some(shape => {
       return cells.some(cell => {
-        if (!this.isCellEmpty(cell)) return;
+        const {row: cellRow, column: cellColumn} = cell.getPosById();
 
-        const {row, column} = cell.getPosById();
+        const necessaryCells = shape.reduce((acc, {row, column}) => {
+          const necessaryId = `${cellRow + row}-${cellColumn + column}`;
+          return [...acc, cells.find(cell => cell.id === necessaryId)];
+        }, []);
 
-        return normalizedPositions.every(([x, y]) => {
-          const cellId = `${x + row}-${y + column}`;
-          const thisCell = cells.find(cell => cell.getPosById() === cellId);
-          return thisCell && this.isCellEmpty(thisCell);
-        });
+        return necessaryCells.every(cell => this.isCellEmpty(cell));
       });
     });
-
-    return !stillPlaying;
   }
 
   update(deltaTime) {

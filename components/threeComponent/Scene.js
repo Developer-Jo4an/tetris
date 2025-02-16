@@ -37,6 +37,15 @@ const Scene = () => {
     setState(nextState);
   };
 
+  const gameCallbacks = {
+    lose: () => {
+
+    },
+    win: () => {
+
+    }
+  };
+
   useStateReducer({}, ignoreNextState, nextStateCallback, state, wrapper);
 
   useLoadController({
@@ -55,6 +64,8 @@ const Scene = () => {
     const callbacks = {
       "state:next": nextStateCallback,
       "state:change": setStateCallback,
+      "game:lose": gameCallbacks.lose,
+      "game:win": gameCallbacks.win
     };
 
     const listenerLogic = method => {
