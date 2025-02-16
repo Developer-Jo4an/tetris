@@ -27,14 +27,6 @@ const utils = {
     backtrack([], count, 0);
 
     return result;
-  },
-  expandRange: range => {
-    const [start, end] = range;
-    if (!end) return [start];
-    return Array.from({length: end - start + 1}, (_, i) => start + i);
-  },
-  spliceOneAndReturn: arr => {
-    return arr.splice(Math.floor(Math.random() * arr.length), 1)[0];
   }
 };
 
@@ -74,11 +66,10 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
   cellsToGrid() {
     const cells = TetrisContainer.getCollectionByType("cell");
-
     return cells.reduce((acc, cell) => {
-      const [string, column] = cell.id.split("-");
-      if (!acc[string]) acc[string] = [];
-      acc[string][column] = cell;
+      const {row, column} = cell.getPosById();
+      if (!acc[row]) acc[row] = [];
+      acc[row][column] = cell;
       return acc;
     }, []);
   }
@@ -150,9 +141,8 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
                 const [modifiedY, modifiedX] = [y + row, x + column];
                 const necessaryCell = grid[modifiedY]?.[modifiedX];
                 const id = `${modifiedY}-${modifiedX}`;
-                if (this.isCellEmpty(necessaryCell) && !reservedShapes.flat(Number.MAX_VALUE).includes(id)) {
+                if (this.isCellEmpty(necessaryCell) && !reservedShapes.flat(Number.MAX_VALUE).includes(id))
                   recurse({row: modifiedY, column: modifiedX});
-                }
               });
             };
 
@@ -304,12 +294,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   }
 
   checkColumnOrRow(side) {
-    const cells = TetrisContainer.getCollectionByType("cell").reduce((acc, cell) => {
-      const {row, column} = cell.getPosById();
-      if (!acc[row]) acc[row] = [];
-      acc[row][column] = cell;
-      return acc;
-    }, []);
+    const cells = this.cellsToGrid();
 
     const length = side === "row" ? cells.length : cells[0].length;
 
