@@ -71,7 +71,7 @@ export default class TetrisAreaController extends BaseTetrisController {
 
     const cells = TetrisContainer.getCollectionByType("cell");
 
-    const shuffledCells = shuffle(cells);
+    const shuffledCells = shuffle([...cells]);
 
     const {shuffledViews, shuffledScales} = shuffledCells.reduce((acc, {view}) => {
       acc.shuffledViews.push(view);
