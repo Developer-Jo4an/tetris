@@ -310,7 +310,9 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
         const necessaryCell = cells[index][subIndex];
 
-        if (necessaryCell.isDisabledCell || !necessaryCell.getSquare()) {
+        if (necessaryCell.isDisabledCell) continue;
+
+        if (!necessaryCell.getSquare()) {
           isSideComplete = false;
           break;
         }
@@ -319,11 +321,15 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
       if (isSideComplete)
         ({
           row: () => {
-            completed.push(...(cells[counter].map(cell => cell.id)));
+            completed.push(...(cells[counter].reduce((acc, cell) => {
+              return cell.isDisabledCell ? acc : [...acc, cell.id];
+            }, [])));
           },
           column: () => {
-            for (let row = 0; row < cells.length; row++)
-              completed.push(cells[row][counter].id);
+            for (let row = 0; row < cells.length; row++) {
+              const necessaryCell = cells[row][counter];
+              !necessaryCell.isDisabledCell && completed.push(necessaryCell.id);
+            }
           }
         })[side]();
     }
