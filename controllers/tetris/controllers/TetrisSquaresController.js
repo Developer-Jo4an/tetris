@@ -23,7 +23,7 @@ export default class TetrisSquaresController extends BaseTetrisController {
         size: cell.size
       });
 
-      cell.addSquare(square);
+      !cell.isDisabledCell && cell.addSquare(square);
     });
   }
 }

@@ -61,7 +61,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
   }
 
   isCellEmpty(cell) {
-    return cell && !Boolean(cell.getSquare());
+    return cell && !cell.isDisabledCell && !Boolean(cell.getSquare());
   }
 
   cellsToGrid() {
@@ -132,7 +132,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
               const cellId = `${row}-${column}`;
 
               if (!allFigures.includes(cellId))
-                shapeArr.push(`${row}-${column}`);
+                shapeArr.push(cellId);
 
               const shuffledDirections = shuffle([...constants.directions]);
 
@@ -310,7 +310,7 @@ export default class TetrisSpawnAreaController extends BaseTetrisController {
 
         const necessaryCell = cells[index][subIndex];
 
-        if (!necessaryCell.getSquare()) {
+        if (necessaryCell.isDisabledCell || !necessaryCell.getSquare()) {
           isSideComplete = false;
           break;
         }

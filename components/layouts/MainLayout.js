@@ -8,6 +8,7 @@ export default function MainLayout({children}) {
   useEffect(() => {
     initModalsList();
   }, []);
+
   return (
     <>
       <input type={"checkbox"} className={"custom-header__input"} id={"menu-burger"}/>

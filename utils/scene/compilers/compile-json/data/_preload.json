@@ -18,7 +18,14 @@
     "type": "texture",
     "name": "cell-empty",
     "path": "assets/texture/",
-    "fileName": "cell-empty.jpg"
+    "fileName": "cell-empty.png"
+  },
+  {
+    "subtype": "pixijs",
+    "type": "texture",
+    "name": "cell-dontExist",
+    "path": "assets/texture/",
+    "fileName": "cell-dontExist.png"
   },
   {
     "subtype": "pixijs",

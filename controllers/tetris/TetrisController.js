@@ -72,7 +72,7 @@ export default class TetrisController extends PixiController {
   onResize({width, height} = this._size) {
     super.onResize({width, height});
     this._size = {width, height};
-    const scale = Math.min(width / GAME_SIZE.width/*, height / GAME_SIZE.height*/);
+    const scale = Math.min(width / GAME_SIZE.width, height / GAME_SIZE.height);
     this.stage.scale.set(scale);
     this.stage.position.set(
       (width - GAME_SIZE.width * scale) / 2,

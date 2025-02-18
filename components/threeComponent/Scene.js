@@ -4,6 +4,7 @@ import {basePixiImports} from "../../utils/scene/utils/import/import-pixi";
 import useStateReducer from "../../utils/scene/react/hooks/useStateReducer";
 import Loader from "../loader/Loader";
 import {Stats} from "../stats/Stats";
+import {useModal} from "../../hooks/useModal";
 
 const stateMachine = {
   loadManifest: {availableStates: ["loading"], nextState: "loading", isDefault: true, isLoading: true},
@@ -20,6 +21,7 @@ const Scene = () => {
   const [wrapper, setWrapper] = useState();
   const [state, setState] = useState(Object.entries(stateMachine).find(([_, value]) => value.isDefault)[0]);
   const containerRef = useRef();
+  const {addModal, closeModal} = useModal();
 
   const setStateCallback = newState => {
     if (!stateMachine[state].availableStates.includes(newState))
@@ -37,13 +39,21 @@ const Scene = () => {
     setState(nextState);
   };
 
-  const gameCallbacks = {
-    lose: () => {
+  const gameEnd = status => {
+    const modalProps = {
+      actions: {
+        close: ({
+          win: () => {
 
-    },
-    win: () => {
+          },
+          lose: () => {
 
-    }
+          }
+        })[status]
+      }
+    };
+
+    addModal({type: "gameEnd", props: {status, ...modalProps}});
   };
 
   useStateReducer({}, ignoreNextState, nextStateCallback, state, wrapper);
@@ -64,8 +74,8 @@ const Scene = () => {
     const callbacks = {
       "state:next": nextStateCallback,
       "state:change": setStateCallback,
-      "game:lose": gameCallbacks.lose,
-      "game:win": gameCallbacks.win
+      "game:lose": () => gameEnd("lose"),
+      "game:win": () => gameEnd("win")
     };
 
     const listenerLogic = method => {

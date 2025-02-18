@@ -37,17 +37,19 @@ export default function ModalController({modalStorage}) {
     body.style.top = `-${scrollTopValue}px`;
   }, [modalStorage.length]);
 
-  const modals = modalStorage ? modalStorage.map((val) =>
-    <CSSTransition classNames='custom-modal' timeout={{enter: 500, exit: 500}} key={val.id}>
-      {val.modal}
-    </CSSTransition>
-  ) : <></>;
+  const modals = modalStorage
+    ? modalStorage.map((val) =>
+      <CSSTransition classNames={"custom-modal"} timeout={{enter: 500, exit: 500}} key={val.id}>
+        {val.modal}
+      </CSSTransition>
+    )
+    : <></>;
 
   return (
     <TransitionGroup component={null}>
       {modals}
     </TransitionGroup>
-  )
+  );
 }
 
 ModalController.propTypes = {

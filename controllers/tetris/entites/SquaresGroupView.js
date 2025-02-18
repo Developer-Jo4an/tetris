@@ -164,26 +164,28 @@ export default class SquaresGroupView extends BaseEntity {
   setPossibleStepModeToCell(possibleCells) {
     const cells = TetrisContainer.getCollectionByType("cell");
     cells.forEach(cell => {
-      const mode = possibleCells.includes(cell);
-      cell.setMode(mode ? "possibleStep" : "standard");
+      const isPossible = possibleCells.includes(cell);
+      !cell.isDisabledCell && cell.setMode(isPossible ? "possibleStep" : "standard");
     });
   }
 
   checkCorrectStep() {
     const cells = TetrisContainer.getCollectionByType("cell");
 
-    const underCells = this.squares.reduce((acc, square,) => {
+    const underCells = this.squares.reduce((acc, square) => {
       const squarePosition = square.view.getGlobalPosition();
 
       const underCell = cells.find(cell => {
         const cellPosition = cell.view.getGlobalPosition();
+
         const [distanceX, distanceY] = ["x", "y"].map(axis =>
           Math.abs(cellPosition[axis] - squarePosition[axis]) / this.stage.scale[axis]
         );
+
         return distanceX <= cell.view.width / 2 && distanceY <= cell.view.height / 2;
       });
 
-      return (!underCell || underCell.isEmpty || !!underCell.getSquare()) ? acc : [...acc, underCell];
+      return (!underCell || underCell.isDisabledCell || !!underCell.getSquare()) ? acc : [...acc, underCell];
     }, []);
 
     this.isCanDoStep = underCells.length === this.squares.length;

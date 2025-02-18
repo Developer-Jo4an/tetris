@@ -21,17 +21,17 @@
       "startHideCellsMultiplier": 0.45,
       "grid": [
         {
-          "cells": [true, true, true, true, true, true, true, true]
+          "cells": [true, true, true, false, false, true, true, true]
         }, {
-          "cells": [true, true, true, true, true, true, true, true]
+          "cells": [true, true, true, false, false, true, true, true]
         }, {
-          "cells": [true, true, true, true, true, true, true, true]
+          "cells": [true, true, true, false, false, true, true, true]
         }, {
-          "cells": [true, true, true, true, true, true, true, true]
+          "cells": [true, true, true, false, false, true, true, true]
         }, {
-          "cells": [true, true, true, true, true, true, true, true]
+          "cells": [true, true, true, "empty", "empty", true, true, true]
         }, {
-          "cells": [true, true, true, true, true, true, true, true]
+          "cells": [true, true, true, "empty", "empty", true, true, true]
         }, {
           "cells": [true, true, true, true, true, true, true, true]
         }, {

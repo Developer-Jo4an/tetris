@@ -50,7 +50,6 @@ const closeModalReducer = (state, {payload}) => {
   if (!removed) {
     console.warn("ModalController: modal to close was not found");
   }
-
 };
 
 const modalController = createSlice({

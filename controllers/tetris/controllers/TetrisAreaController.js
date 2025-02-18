@@ -4,6 +4,7 @@ import Cell from "../entites/Cell";
 import TetrisContainer from "../helpers/TetrisContainer";
 import {globalUtils} from "../utils/globalUtils";
 import {shuffle} from "../../../utils/scene/utils/random/shuffle";
+import BaseEntity from "../entites/BaseEntity";
 
 const utils = {
   getCellPos: (cellSize, axes) => {
@@ -16,7 +17,7 @@ export default class TetrisAreaController extends BaseTetrisController {
   constructor(data) {
     super(data);
 
-    this.init()
+    this.init();
   }
 
   init() {
@@ -32,15 +33,13 @@ export default class TetrisAreaController extends BaseTetrisController {
 
     gridContainer.name = "gridArea";
 
-    grid.forEach(({cells}, str) => cells.forEach((cell, pos) => {
-      if (!cell) return;
-
+    grid.forEach(({cells, alignItems}, str) => cells.forEach((cell, pos) => {
       const id = `${str}-${pos}`;
 
       const cellItem = new Cell({
         id,
         level: this.level,
-        isEmpty: cell === "empty",
+        status: ({"false": "dontExist", "empty": "empty", "true": "standard"})[cell],
         size: cellSize,
         storage: this.storage,
         stage: this.stage,
@@ -73,9 +72,9 @@ export default class TetrisAreaController extends BaseTetrisController {
 
     const shuffledCells = shuffle([...cells]);
 
-    const {shuffledViews, shuffledScales} = shuffledCells.reduce((acc, {view}) => {
-      acc.shuffledViews.push(view);
-      acc.shuffledScales.push(view.scale);
+    const {shuffledViews, shuffledScales} = shuffledCells.reduce((acc, cell) => {
+      cell.isVisibleCell && acc.shuffledViews.push(cell.view);
+      acc.shuffledScales.push(cell.view.scale);
       return acc;
     }, {shuffledViews: [], shuffledScales: []});
 
